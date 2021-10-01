@@ -20,14 +20,19 @@ We will be using Oracle XE in a Docker container, which you can install through 
 
 `./buildContainerImage.sh -v 18.4.0 -x`
 
-* Create a shared directory, for instance: 
+* Create a docker volume so that data in the DB is not lost after restarting the container:
 
-`/home/user/oracle-shared`
+`docker volume create oracle18.4.0XE`
+
+We will link this volume (a folder in your filesystem) to a specific folder within the container.
+You can check where is the volume in your filesystem with this command `docker volume inspect oracle18.4.0XE`.
 
 * Run docker image previously built. We will link our port 1521 to the container's port 1521,
-also link the shared directory created in the previous step to the container's /shared folder.
+also link the shared directory created in the previous step to the container's /opt/oracle/oradata/ folder.
 
-`docker run -i -t -d --hostname ora18xe --name ora18xe -p 1521:1521 -v /home/user/oracle-shared:/shared oracle/database:18.4.0-xe`
+`docker run -i -t -d --hostname ora18xe --name ora18xe -p 1521:1521 -v oracle18.4.0XE:/opt/oracle/oradata oracle/database:18.4.0-xe`
+
+This will take several minutes (~10 in my laptop) before the DB is ready, meanwhile you can check the logs of the container.
 
 * Inspect the logs of the docker container and note down the password for SYSTEM user, also the pluggable database value (ie. `ora18xe/XEPDB1`).
 Every time you run the docker container it will create and assign a different password to SYS and SYSTEM users, so the DataSource pointing to it might need
@@ -68,3 +73,33 @@ After creating the `testuser`, configure a new DataSource to connect to Oracle X
 If you want to use a different username and password, remember to update accordingly
 the `application.properties` file.
 
+Using the DataSource for `testuser`, create the following table that corresponds to our UserDetails @Entity:
+```sql
+create table user_details (id number(10,0) generated as identity, email varchar2(255 char), first_name varchar2(255 char), last_name varchar2(255 char), password varchar2(255 char), primary key (id))
+```
+
+And store the following UserDetails entries:
+```sql
+INSERT INTO user_details(email,first_Name,last_Name,password) VALUES ('admin@admin.com','admin','admin','admin');
+INSERT INTO user_details(email,first_Name,last_Name,password) VALUES ('john@gmail.com','john','doe','johndoe');
+INSERT INTO user_details(email,first_Name,last_Name,password) VALUES ('sham@yahoo.com','sham','tis','shamtis');
+```
+
+When you have finished you can stop the container and restart it, let's check that the data has survived restarting the container:
+`docker stop ora18xe`
+`docker start ora18xe`
+
+## Run the Application.java
+Every time the application is run, it will create the tables defined by the `@Entity` annotations in our model classes.
+In this project, there is only a table named `USER_DETAILS`, and you can check it has been created during Application startup
+with the following SQL:
+```sql
+SELECT table_name
+FROM user_tables
+ORDER BY table_name;
+```
+
+(Oracle DBs do not support `show tables`).
+
+This is controlled by property `spring.jpa.hibernate.ddl-auto` set to `create` in `application.properties`.
+Other values besides `create` are `none`, `update`, `validate`, `create-drop` (see [this StackOverflow answer](https://stackoverflow.com/a/42147995/923509)) 
