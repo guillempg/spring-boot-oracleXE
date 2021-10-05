@@ -3,6 +3,7 @@ package com.example.springjpaoracle.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.example.springjpaoracle.dto.StudentResponse;
 import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Student;
 
@@ -30,15 +31,15 @@ public class StudentController
         this.courseRepository = courseRepository;
     }
 
-    @PostMapping(
-        value = "/register")
-    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
+    @PostMapping(value = "/register")
+    public ResponseEntity<StudentResponse> createStudent(@RequestBody Student student) {
 
         List<Course> courses = findOrCreate(student.getCourses());
         student.setCourses(courses);
 
         final var savedStudent =  studentRepository.save(student);
-        return new ResponseEntity<>(savedStudent, HttpStatus.OK);
+        final StudentResponse resp = StudentResponse.from(savedStudent);
+        return new ResponseEntity<>(resp, HttpStatus.OK);
     }
 
     private List<Course> findOrCreate(final List<Course> courses)

@@ -35,7 +35,6 @@ public class Student
         joinColumns = @JoinColumn(name="STUDENT_ID", referencedColumnName = "ID"),
         inverseJoinColumns = @JoinColumn(name="COURSE_ID", referencedColumnName = "ID")
     )
-
     private List<Course> courses;
 
     public int getId()

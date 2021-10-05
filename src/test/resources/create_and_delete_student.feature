@@ -1,8 +1,8 @@
 Feature: Create and delete student
 
-
   Scenario: Create new student
-    Given the app is running and connected to database
-    Then we successfully create student with details:
-    | name           | ID | courses                          |
-    | Wiley Coyote   | 1  | Explosives 101, Rocket riding 101|
+    Given the app is running
+    Then we successfully register student with details:
+    | name             | courses                          |
+    | Wiley E. Coyote  | Explosives 101, Rocket riding 101|
+    | Tasmanian Devil  | Explosives 101                   |
