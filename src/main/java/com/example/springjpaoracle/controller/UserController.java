@@ -24,7 +24,7 @@ public class UserController
 	public ResponseEntity<List<UserDetails>> userDetails() {
         
 		List<UserDetails> userDetails = userDetailsRepository.findAll();
-		return new ResponseEntity<List<UserDetails>>(userDetails, HttpStatus.OK);
+		return new ResponseEntity<>(userDetails, HttpStatus.OK);
 	}
 
 }

@@ -99,7 +99,7 @@ FROM user_tables
 ORDER BY table_name;
 ```
 
-(Oracle DBs do not support `show tables`).
+(Oracle DBs does not support `show tables`).
 
 This is controlled by property `spring.jpa.hibernate.ddl-auto` set to `create` in `application.properties`.
 Other values besides `create` are `none`, `update`, `validate`, `create-drop` (see [this StackOverflow answer](https://stackoverflow.com/a/42147995/923509)) 

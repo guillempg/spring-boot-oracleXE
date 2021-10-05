@@ -1,0 +1,118 @@
+{
+	"info": {
+		"_postman_id": "3c9be334-2324-41ca-9378-214cbb933b5e",
+		"name": "rest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List Enrolled Students",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/students/listEnrolledStudents?courseName=Explosives%20101",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"students",
+						"listEnrolledStudents"
+					],
+					"query": [
+						{
+							"key": "courseName",
+							"value": "Explosives%20101"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Enroll Tasmanian Devil",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"name\": \"Demonio de Tasmania\", \"courses\": [{\"name\":\"Explosives 101\", \"description\":\"pum\"}]}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/students/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"students",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Enroll Wile E. Coyote",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"name\": \"Wile E. Coyote\", \"courses\": [{\"name\":\"Explosives 101\", \"description\":\"pum\"}, {\"name\":\"Rocket Riding 101\", \"description\":\"yeha\"}]}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/students/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"students",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Student by Name",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/listStudentByName?name=Wile%20E.%20Coyote",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"listStudentByName"
+					],
+					"query": [
+						{
+							"key": "name",
+							"value": "Wile%20E.%20Coyote"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
