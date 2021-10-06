@@ -2,6 +2,7 @@ package com.example.springjpaoracle.model;
 
 import java.util.List;
 import java.util.Objects;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -25,15 +26,18 @@ public class Student
     @Column
     private String name;
 
+    @Column(unique = true, nullable = false)
+    private String socialSecurityNumber;
+
     @OneToOne
-    @JoinColumn(name="USER_DETAILS_ID")
+    @JoinColumn(name = "USER_DETAILS_ID")
     private UserDetails personalData;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(
-        name="STUDENT_COURSE_REGISTER",
-        joinColumns = @JoinColumn(name="STUDENT_ID", referencedColumnName = "ID"),
-        inverseJoinColumns = @JoinColumn(name="COURSE_ID", referencedColumnName = "ID")
+        name = "STUDENT_COURSE_REGISTER",
+        joinColumns = @JoinColumn(name = "STUDENT_ID", referencedColumnName = "ID"),
+        inverseJoinColumns = @JoinColumn(name = "COURSE_ID", referencedColumnName = "ID")
     )
     private List<Course> courses;
 
@@ -42,9 +46,10 @@ public class Student
         return id;
     }
 
-    public void setId(final int id)
+    public Student setId(final int id)
     {
         this.id = id;
+        return this;
     }
 
     public String getName()
@@ -52,9 +57,10 @@ public class Student
         return name;
     }
 
-    public void setName(final String name)
+    public Student setName(final String name)
     {
         this.name = name;
+        return this;
     }
 
     public UserDetails getPersonalData()
@@ -62,9 +68,10 @@ public class Student
         return personalData;
     }
 
-    public void setPersonalData(final UserDetails personalData)
+    public Student setPersonalData(final UserDetails personalData)
     {
         this.personalData = personalData;
+        return this;
     }
 
     public List<Course> getCourses()
@@ -72,9 +79,21 @@ public class Student
         return courses;
     }
 
-    public void setCourses(final List<Course> courses)
+    public Student setCourses(final List<Course> courses)
     {
         this.courses = courses;
+        return this;
+    }
+
+    public String getSocialSecurityNumber()
+    {
+        return socialSecurityNumber;
+    }
+
+    public Student setSocialSecurityNumber(final String socialSecurityNumber)
+    {
+        this.socialSecurityNumber = socialSecurityNumber;
+        return this;
     }
 
     @Override
@@ -90,12 +109,12 @@ public class Student
         }
         Student student = (Student)o;
         return id == student.id &&
-            Objects.equals(name, student.name);
+            socialSecurityNumber.equals(student.socialSecurityNumber);
     }
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(id, name);
+        return Objects.hash(id, socialSecurityNumber);
     }
 }

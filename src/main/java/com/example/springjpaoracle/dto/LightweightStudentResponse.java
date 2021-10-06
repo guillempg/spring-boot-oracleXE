@@ -1,14 +1,10 @@
 package com.example.springjpaoracle.dto;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.example.springjpaoracle.model.Student;
 
-public class StudentResponse
+public class LightweightStudentResponse
 {
     private String name;
-    private List<CourseResponse> courses;
     private String socialSecurityNumber;
 
     public void setName(final String name)
@@ -21,26 +17,12 @@ public class StudentResponse
         return name;
     }
 
-    public static StudentResponse from(Student student)
+    public static LightweightStudentResponse from(Student student)
     {
-        final StudentResponse studentResponse = new StudentResponse();
+        final LightweightStudentResponse studentResponse = new LightweightStudentResponse();
         studentResponse.setName(student.getName());
         studentResponse.setSocialSecurityNumber(student.getSocialSecurityNumber());
-        studentResponse.setCourses(student.getCourses().stream()
-            .map(CourseResponse::from)
-            .collect(Collectors.toList()));
-
         return studentResponse;
-    }
-
-    public List<CourseResponse> getCourses()
-    {
-        return courses;
-    }
-
-    public void setCourses(final List<CourseResponse> courses)
-    {
-        this.courses = courses;
     }
 
     public String getSocialSecurityNumber()
