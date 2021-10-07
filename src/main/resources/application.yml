@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: producer-service
+  cloud:
+    function:
+      definition: upperCase;stringConsumer
+    stream:
+      bindings:
+        stringConsumer-in-0:
+          destination: example.topic
+        upperCase-out-0:
+          destination: example.topic
+  #      default:
+  #        contentType: application/json
+  rabbitmq:
+    username: someuser
+    password: somepassword
+    host: localhost
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.Oracle12cDialect
+        format_sql: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:oracle:thin:@localhost:1521:XE
+    username: testuser
+    password: testpassword
+    driverClassName: oracle.jdbc.OracleDriver
