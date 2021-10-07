@@ -3,29 +3,30 @@ spring:
     name: producer-service
   cloud:
     function:
-      definition: upperCase;stringConsumer
+      definition: studentRegistryInput
     stream:
       bindings:
-        stringConsumer-in-0:
-          destination: example.topic
-        upperCase-out-0:
-          destination: example.topic
+        studentRegistryInput-in-0:
+          destination: students.topic
+        register-student-output:
+          destination: students.topic
   #      default:
   #        contentType: application/json
   rabbitmq:
-    username: someuser
-    password: somepassword
+    username: guest
+    password: guest
     host: localhost
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.Oracle12cDialect
-        format_sql: true
+        format_sql: false
     show-sql: true
     hibernate:
       ddl-auto: update
+    open-in-view: false
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521:XE
+    url: "jdbc:oracle:thin:@localhost:${ORACLE_PORT:1521}:XE"
     username: testuser
     password: testpassword
     driverClassName: oracle.jdbc.OracleDriver

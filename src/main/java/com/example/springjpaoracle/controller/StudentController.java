@@ -1,56 +1,36 @@
 package com.example.springjpaoracle.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.example.springjpaoracle.dto.LightweightStudentResponse;
 import com.example.springjpaoracle.dto.StudentResponse;
-import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Student;
-
+import com.example.springjpaoracle.service.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/students")
 public class StudentController
 {
     private final StudentRepository studentRepository;
-    private final CourseRepository courseRepository;
+    private final StudentService studentService;
 
-    public StudentController(final StudentRepository studentRepository, final CourseRepository courseRepository)
+    public StudentController(final StudentRepository studentRepository,
+                             final StudentService studentService)
     {
         this.studentRepository = studentRepository;
-        this.courseRepository = courseRepository;
+        this.studentService = studentService;
     }
 
     @PostMapping(value = "/register")
     public ResponseEntity<StudentResponse> createStudent(@RequestBody Student student)
     {
-
-        List<Course> courses = findOrCreate(student.getCourses());
-        student.setCourses(courses);
-
-        final var savedStudent = studentRepository.save(student);
+        final var savedStudent = studentService.registerStudent(student);
         final StudentResponse resp = StudentResponse.from(savedStudent);
         return new ResponseEntity<>(resp, HttpStatus.OK);
-    }
-
-    private List<Course> findOrCreate(final List<Course> courses)
-    {
-        return courses.stream()
-            .map((course) -> courseRepository.findByNameIgnoreCase(
-                course.getName())
-                .orElseGet(() -> courseRepository.save(course)))
-            .collect(Collectors.toList());
     }
 
     @GetMapping(value = "/listStudentByName")
@@ -83,13 +63,10 @@ public class StudentController
     }
 
     @GetMapping("{socialSecurityNumber}")
-    public ResponseEntity<StudentResponse> findBySocialSecurityNumber(@PathVariable final String socialSecurityNumber)
-    {
-        final StudentResponse student =
-            studentRepository.findBySocialSecurityNumber(socialSecurityNumber)
-                .map(s -> StudentResponse.from(s))
+    public ResponseEntity<LightweightStudentResponse> findBySocialSecurityNumber(@PathVariable final String socialSecurityNumber) {
+        return studentRepository.findBySocialSecurityNumber(socialSecurityNumber)
+                .map(LightweightStudentResponse::from)
+                .map(ResponseEntity::ok)
                 .orElseThrow(() -> new StudentNotFoundException(socialSecurityNumber));
-
-        return ResponseEntity.ok(student);
     }
 }

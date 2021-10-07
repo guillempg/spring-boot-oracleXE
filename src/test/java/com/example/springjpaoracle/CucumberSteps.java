@@ -1,47 +1,52 @@
 package com.example.springjpaoracle;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.example.springjpaoracle.controller.StudentRepository;
 import com.example.springjpaoracle.dto.LightweightStudentResponse;
 import com.example.springjpaoracle.dto.StudentResponse;
 import com.example.springjpaoracle.model.Student;
-
+import io.cucumber.datatable.DataTable;
+import io.cucumber.java.After;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import io.cucumber.datatable.DataTable;
-import io.cucumber.java.After;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-public class CucumberSteps
-{
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
+
+public class CucumberSteps {
+    public static final String REGISTER_STUDENT_OUTPUT = "register-student-output";
     private final ConfigurableApplicationContext context;
     private final TestRestTemplate template;
     private final CompositeRepository uberRepository;
-    private final StudentRepository studentRepository;
+    private final StreamBridge streamBridge;
 
     public CucumberSteps(final ConfigurableApplicationContext context, final TestRestTemplate template,
-                         final CompositeRepository uberRepository, final StudentRepository studentRepository)
-    {
+                         final CompositeRepository uberRepository, final StudentRepository studentRepository,
+                         final StreamBridge streamBridge) {
         this.context = context;
         this.template = template;
         this.uberRepository = uberRepository;
-        this.studentRepository = studentRepository;
+        this.streamBridge = streamBridge;
+    }
+
+    @After
+    public void cleanTables() {
+        uberRepository.cleanTables();
     }
 
     @Given("the app is running")
@@ -67,15 +72,8 @@ public class CucumberSteps
         }
     }
 
-    @After
-    public void cleanTables()
-    {
-        uberRepository.cleanTables();
-    }
-
     @When("we successfully register student with name {string} and ssn {string} on courses {string}")
-    public void registerStudent(final String studentName, final String socialSecurityNumber, final String courses)
-    {
+    public void registerStudent(final String studentName, final String socialSecurityNumber, final String courses) {
         final String url = "/students/register";
 
         final List<CourseHttpRequest> coursesRequested = Arrays.stream(courses.split(","))
@@ -108,7 +106,7 @@ public class CucumberSteps
     {
         final String url = "/students/{ssn}";
         final ResponseEntity<Student> student = template.getForEntity(url, Student.class, socialSecurityNumber);
-        assertTrue(student.getStatusCode().equals(HttpStatus.NOT_FOUND));
+        assertEquals(student.getStatusCode(), HttpStatus.NOT_FOUND);
     }
 
     @When("we request the list of students enrolled to course {string} we receive:")
@@ -129,47 +127,64 @@ public class CucumberSteps
             .containsExactly(expectedStudentNames.toArray(String[]::new));
     }
 
+    @When("we register students via messaging with details:")
+    public void weRegisterStudentsViaMessagingWithDetails(final DataTable dataTable) {
+        tableToStudentsRequest(dataTable).forEach(request -> streamBridge.send(REGISTER_STUDENT_OUTPUT, request));
+    }
 
-    class StudentHttpRequest
-    {
+    @Then("students should exits with following security social numbers:")
+    public void studentsShouldExitsWithFollowingSecuritySocialNumbers(DataTable socialSecurityNumbers) {
+        await().until(() -> socialSecurityNumbers.asList()
+                        .stream().skip(1).map(ssn -> template.getForEntity("/students/{ssn}", Student.class, ssn))
+                        .map(ResponseEntity::getStatusCode).allMatch(HttpStatus::is2xxSuccessful));
+
+    }
+
+    private List<StudentHttpRequest> tableToStudentsRequest(DataTable dataTable) {
+        return dataTable.asMaps().stream().map(this::rowToRequest).collect(Collectors.toList());
+    }
+
+    private StudentHttpRequest rowToRequest(Map<String, String> row) {
+        List<CourseHttpRequest> courses = Arrays.stream(row.get("courses").split(",")).map(String::trim)
+                .map(CourseHttpRequest::new).collect(Collectors.toList());
+        return new StudentHttpRequest(row.get("name"), row.get("ssn"), courses);
+    }
+
+    static class StudentHttpRequest {
+
         final String name;
         final String socialSecurityNumber;
         final List<CourseHttpRequest> courses;
 
-        public StudentHttpRequest(final String name, final String socialSecurityNumber, final List<CourseHttpRequest> courses)
-        {
+        public StudentHttpRequest(final String name,
+                                  final String socialSecurityNumber,
+                                  final List<CourseHttpRequest> courses) {
             this.name = name;
             this.socialSecurityNumber = socialSecurityNumber;
             this.courses = courses;
         }
 
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
 
-        public List<CourseHttpRequest> getCourses()
-        {
+        public List<CourseHttpRequest> getCourses() {
             return courses;
         }
 
-        public String getSocialSecurityNumber()
-        {
+        public String getSocialSecurityNumber() {
             return socialSecurityNumber;
         }
     }
 
-    class CourseHttpRequest
-    {
+    static class CourseHttpRequest {
         final String name;
 
-        public CourseHttpRequest(final String name)
-        {
+        public CourseHttpRequest(final String name) {
             this.name = name;
         }
 
-        public String getName()
-        {
+        public String getName() {
             return name;
         }
     }

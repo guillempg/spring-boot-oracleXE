@@ -34,6 +34,7 @@ dependencies {
     testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-java:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
+    testImplementation 'org.awaitility:awaitility:4.1.0'
 }
 
 dependencyManagement {

@@ -25,3 +25,14 @@ Feature: Create and delete student
       | Road Runner     |
       | Tasmanian Devil |
       | Wiley E. Coyote |
+
+  Scenario: Create new student from messaging queue
+    Given the app is running
+    When we register students via messaging with details:
+      | name            | courses                           | ssn         |
+      | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 |
+      | Tasmanian Devil | Explosives 101                    | 222-222-222 |
+    Then students should exits with following security social numbers:
+      | ssn         |
+      | 111-111-111 |
+      | 222-222-222 |
