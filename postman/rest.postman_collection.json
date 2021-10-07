@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "3c9be334-2324-41ca-9378-214cbb933b5e",
+		"_postman_id": "3c7b01ef-9ae0-42af-983b-b8e62926cb83",
 		"name": "rest",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -38,7 +38,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{ \"name\": \"Demonio de Tasmania\", \"courses\": [{\"name\":\"Explosives 101\", \"description\":\"pum\"}]}",
+					"raw": "{ \"name\": \"Demonio de Tasmania\", \"courses\": [{\"name\":\"Explosives 101\", \"description\":\"pum\"}], \"socialSecurityNumber\": \"222-222-222\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -67,7 +67,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{ \"name\": \"Wile E. Coyote\", \"courses\": [{\"name\":\"Explosives 101\", \"description\":\"pum\"}, {\"name\":\"Rocket Riding 101\", \"description\":\"yeha\"}]}",
+					"raw": "{ \"name\": \"Wile E. Coyote\", \"courses\": [{\"name\":\"Explosives 101\", \"description\":\"pum\"}, {\"name\":\"Rocket Riding 101\", \"description\":\"yeha\"}], \"socialSecurityNumber\": \"111-111-111\"}",
 					"options": {
 						"raw": {
 							"language": "json"
