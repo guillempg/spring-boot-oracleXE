@@ -12,6 +12,7 @@ import java.util.Optional;
 import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Student;
 
+import com.example.springjpaoracle.service.StudentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -32,7 +33,7 @@ class StudentControllerTest
     private StudentRepository studentRepository;
 
     @MockBean
-    private CourseRepository courseRepository;
+    private StudentService studentService;
 
     @Test
     void shouldFindBySocialSecurityNumber() throws Exception
@@ -41,7 +42,7 @@ class StudentControllerTest
             .thenReturn(
                 Optional.of(new Student()
                     .setName(STUDENT_NAME)
-                    .setCourses(new ArrayList<Course>())
+                    .setCourses(new ArrayList<>())
                     .setSocialSecurityNumber(EXISTING_SSN)));
 
         mockedMvc.perform(get("/students/{ssn}", EXISTING_SSN))
