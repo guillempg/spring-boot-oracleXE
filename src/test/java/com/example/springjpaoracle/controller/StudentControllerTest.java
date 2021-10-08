@@ -1,23 +1,21 @@
 package com.example.springjpaoracle.controller;
 
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.util.ArrayList;
-import java.util.Optional;
-
-import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Student;
-
 import com.example.springjpaoracle.service.StudentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.ArrayList;
+import java.util.Optional;
+
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(StudentController.class)
 class StudentControllerTest
@@ -30,37 +28,34 @@ class StudentControllerTest
     private MockMvc mockedMvc;
 
     @MockBean
-    private StudentRepository studentRepository;
-
-    @MockBean
     private StudentService studentService;
 
     @Test
     void shouldFindBySocialSecurityNumber() throws Exception
     {
-        when(studentRepository.findBySocialSecurityNumber(EXISTING_SSN))
-            .thenReturn(
-                Optional.of(new Student()
-                    .setName(STUDENT_NAME)
-                    .setCourses(new ArrayList<>())
-                    .setSocialSecurityNumber(EXISTING_SSN)));
+        when(studentService.findBySocialSecurityNumber(EXISTING_SSN))
+                .thenReturn(
+                        Optional.of(new Student()
+                                .setName(STUDENT_NAME)
+                                .setCourses(new ArrayList<>())
+                                .setSocialSecurityNumber(EXISTING_SSN)));
 
         mockedMvc.perform(get("/students/{ssn}", EXISTING_SSN))
-            .andDo(print())
-            .andExpect(jsonPath("$.socialSecurityNumber").value(EXISTING_SSN))
-            .andExpect(jsonPath("$.name").value(STUDENT_NAME))
-            .andExpect(status().isOk());
+                .andDo(print())
+                .andExpect(jsonPath("$.socialSecurityNumber").value(EXISTING_SSN))
+                .andExpect(jsonPath("$.name").value(STUDENT_NAME))
+                .andExpect(status().isOk());
     }
 
     @Test
     void shouldReturn404WhenNotFoundBySocialSecurityNumber() throws Exception
     {
-        when(studentRepository.findBySocialSecurityNumber(NOT_EXISTING_SSN))
-            .thenReturn(
-                Optional.empty());
+        when(studentService.findBySocialSecurityNumber(NOT_EXISTING_SSN))
+                .thenReturn(
+                        Optional.empty());
 
         mockedMvc.perform(get("/students/{ssn}", NOT_EXISTING_SSN))
-            .andDo(print())
-            .andExpect(status().isNotFound());
+                .andDo(print())
+                .andExpect(status().isNotFound());
     }
 }

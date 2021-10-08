@@ -3,9 +3,11 @@ spring:
     name: producer-service
   cloud:
     function:
-      definition: studentRegistryInput
+      definition: studentRegistryInput;studentDeleteInput
     stream:
       bindings:
+        studentDeleteInput-in-0:
+          destination: student_delete.topic
         studentRegistryInput-in-0:
           destination: students.topic
         register-student-output:

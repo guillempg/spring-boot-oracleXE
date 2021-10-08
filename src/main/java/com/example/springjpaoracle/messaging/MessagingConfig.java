@@ -8,10 +8,17 @@ import org.springframework.context.annotation.Configuration;
 import java.util.function.Consumer;
 
 @Configuration
-public class MessagingConfig {
+public class MessagingConfig
+{
+    @Bean
+    public Consumer<Student> studentRegistryInput(StudentService studentService)
+    {
+        return studentService::registerStudent;
+    }
 
     @Bean
-    public Consumer<Student> studentRegistryInput(StudentService studentService) {
-        return studentService::registerStudent;
+    public Consumer<String> studentDeleteInput(StudentService studentService)
+    {
+        return studentService::deleteBySocialSecurityNumber;
     }
 }
