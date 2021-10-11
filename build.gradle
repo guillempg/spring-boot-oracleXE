@@ -13,6 +13,7 @@ repositories {
 }
 
 ext {
+    set('springCloudVersion', "2020.0.4")
     set('testcontainersVersion', "1.16.0")
 }
 
@@ -21,18 +22,25 @@ def cucumberVersion = "6.11.0"
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    implementation 'org.springframework.cloud:spring-cloud-stream'
+    implementation 'org.springframework.cloud:spring-cloud-stream-binder-rabbit'
     runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
+    testImplementation 'org.springframework.amqp:spring-rabbit-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:oracle-xe'
+    testImplementation 'org.testcontainers:rabbitmq'
     testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-java:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
+    testImplementation 'org.awaitility:awaitility:4.1.0'
 }
 
 dependencyManagement {
     imports {
         mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
     }
 }
 

@@ -1,0 +1,34 @@
+spring:
+  application:
+    name: producer-service
+  cloud:
+    function:
+      definition: studentRegistryInput;studentDeleteInput
+    stream:
+      bindings:
+        studentDeleteInput-in-0:
+          destination: student_delete.topic
+        studentRegistryInput-in-0:
+          destination: students.topic
+        register-student-output:
+          destination: students.topic
+  #      default:
+  #        contentType: application/json
+  rabbitmq:
+    username: guest
+    password: guest
+    host: localhost
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.Oracle12cDialect
+        format_sql: false
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  datasource:
+    url: "jdbc:oracle:thin:@localhost:${ORACLE_PORT:1521}:XE"
+    username: testuser
+    password: testpassword
+    driverClassName: oracle.jdbc.OracleDriver
