@@ -1,7 +1,18 @@
 # Spring boot JPA + Oracle XE running in a container
 This is a sample project using JPA against an Oracle DB (the Express Edition XE which can be used for testing).
 First, we need to have an Oracle DB installed and available, if you don't have one follow the instructions on next step,
-otherwise skip it.
+otherwise skip it. Testing in the same database that runs in production helps find problems that would otherwise only be found
+when deploying in production, for instance in this application, class `Phone` does have a field `phoneNumber` which cannot
+be named `number`, as it is an [Oracle reserved keyword](https://docs.oracle.com/cd/A97630_01/appdev.920/a42525/apb.htm). 
+
+This application encodes a REST service (defined in `StudentController.java`) with several endpoints that can be 
+accessed through GET, DELETE and POST Http methods. There are several Cucumber test scenarios for the REST service in
+`student_registration_and_deletion.feature`. 
+
+Some of these endpoints can also be accessed via messaging, and are tested in `student_registration_and_deletion.feature`
+using RabbitMQ testcontainers or Spring Integration API.
+
+The following schema summarizes the relationships between `@Entity` classes in this project ![image](src/main/resources/images/schema.png)
 
 ## Pre-requisites (if you don't have access to an Oracle DB)
 We will be using Oracle XE in a Docker container, which you can install through the following steps:
@@ -71,28 +82,21 @@ grant connect, resource to testuser;
 ```
 After creating the `testuser`, configure a new DataSource to connect to Oracle XE using it.
 If you want to use a different username and password, remember to update accordingly
-the `application.properties` file.
-
-Using the DataSource for `testuser`, create the following table that corresponds to our UserDetails @Entity:
-```sql
-create table user_details (id number(10,0) generated as identity, email varchar2(255 char), first_name varchar2(255 char), last_name varchar2(255 char), password varchar2(255 char), primary key (id))
-```
-
-And store the following UserDetails entries:
-```sql
-INSERT INTO user_details(email,first_Name,last_Name,password) VALUES ('admin@admin.com','admin','admin','admin');
-INSERT INTO user_details(email,first_Name,last_Name,password) VALUES ('john@gmail.com','john','doe','johndoe');
-INSERT INTO user_details(email,first_Name,last_Name,password) VALUES ('sham@yahoo.com','sham','tis','shamtis');
-```
+the `application.yml` file.
 
 When you have finished you can stop the container and restart it, let's check that the data has survived restarting the container:
 `docker stop ora18xe`
 `docker start ora18xe`
 
-## Run the Application.java
-Every time the application is run, it will create the tables defined by the `@Entity` annotations in our model classes.
-In this project, there is only a table named `USER_DETAILS`, and you can check it has been created during Application startup
-with the following SQL:
+## Test the data source
+So far we do not have any tables in OracleXE, but we can leverage JPA to create these for us. 
+We can set the `spring.jpa.hibernate.ddl-auto` property `create` in the file `application.yml`,
+and run `Application.java` to create the tables specified in our JPA mapping automatically.
+
+Other values besides `create` are `none`, `update`, `validate`, `create-drop` (see [this StackOverflow answer](https://stackoverflow.com/a/42147995/923509)),
+in production `none` or `validate` are a safer choice than `create`, `update`. 
+
+You can check which tables were created executing the following SQL through the DataSource console:
 ```sql
 SELECT table_name
 FROM user_tables
@@ -101,5 +105,4 @@ ORDER BY table_name;
 
 (Oracle DBs does not support `show tables`).
 
-This is controlled by property `spring.jpa.hibernate.ddl-auto` set to `create` in `application.properties`.
-Other values besides `create` are `none`, `update`, `validate`, `create-drop` (see [this StackOverflow answer](https://stackoverflow.com/a/42147995/923509)) 
+## Data model

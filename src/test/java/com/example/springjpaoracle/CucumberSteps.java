@@ -21,6 +21,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -73,7 +74,7 @@ public class CucumberSteps
         {
             try
             {
-                registerStudent(row.get("name"), row.get("ssn"), row.get("courses"));
+                registerStudent(row.get("name"), row.get("ssn"), row.get("phones"), row.get("courses"));
             } catch (Exception e)
             {
                 fail("Student not registered: " + e.getMessage());
@@ -82,8 +83,11 @@ public class CucumberSteps
         }
     }
 
-    @When("we successfully register student with name {string} and ssn {string} on courses {string}")
-    public void registerStudent(final String studentName, final String socialSecurityNumber, final String courses)
+    @When("we successfully register student with name {string} and ssn {string} and phones {string} on courses {string}")
+    public void registerStudent(final String studentName,
+                                final String socialSecurityNumber,
+                                final String phoneNumbers,
+                                final String courses)
     {
         final String url = "/students/register";
 
@@ -91,7 +95,18 @@ public class CucumberSteps
                 .map(CourseHttpRequest::new)
                 .collect(Collectors.toList());
 
-        final StudentHttpRequest s = new StudentHttpRequest(studentName, socialSecurityNumber, coursesRequested);
+        List<PhoneHttpRequest> phonesSubmitted = Collections.emptyList();
+        if (phoneNumbers != null)
+        {
+            phonesSubmitted = Arrays.stream(phoneNumbers.split(","))
+                    .map(PhoneHttpRequest::new)
+                    .collect(Collectors.toList());
+        }
+        final StudentHttpRequest s = new StudentHttpRequest(
+                studentName,
+                socialSecurityNumber,
+                coursesRequested,
+                phonesSubmitted);
 
         final StudentResponse registeredStudent = template.postForObject(url, s, StudentResponse.class);
         assertEquals(registeredStudent.getName(), studentName);
@@ -168,7 +183,15 @@ public class CucumberSteps
     {
         List<CourseHttpRequest> courses = Arrays.stream(row.get("courses").split(",")).map(String::trim)
                 .map(CourseHttpRequest::new).collect(Collectors.toList());
-        return new StudentHttpRequest(row.get("name"), row.get("ssn"), courses);
+        List<PhoneHttpRequest> phonesSubmitted = Collections.emptyList();
+        if (row.get("phones") != null &&
+                row.get("phones").length() > 0)
+        {
+            phonesSubmitted = Arrays.stream(row.get("phones").split(","))
+                    .map(PhoneHttpRequest::new)
+                    .collect(Collectors.toList());
+        }
+        return new StudentHttpRequest(row.get("name"), row.get("ssn"), courses, phonesSubmitted);
     }
 
     static class StudentHttpRequest
@@ -177,14 +200,17 @@ public class CucumberSteps
         final String name;
         final String socialSecurityNumber;
         final List<CourseHttpRequest> courses;
+        final List<PhoneHttpRequest> phones;
 
         public StudentHttpRequest(final String name,
                                   final String socialSecurityNumber,
-                                  final List<CourseHttpRequest> courses)
+                                  final List<CourseHttpRequest> courses,
+                                  final List<PhoneHttpRequest> phones)
         {
             this.name = name;
             this.socialSecurityNumber = socialSecurityNumber;
             this.courses = courses;
+            this.phones = phones;
         }
 
         public String getName()
@@ -201,6 +227,11 @@ public class CucumberSteps
         {
             return socialSecurityNumber;
         }
+
+        public List<PhoneHttpRequest> getPhones()
+        {
+            return phones;
+        }
     }
 
     static class CourseHttpRequest
@@ -215,6 +246,22 @@ public class CucumberSteps
         public String getName()
         {
             return name;
+        }
+    }
+
+    static class PhoneHttpRequest
+    {
+        final String phoneNumber;
+
+
+        public PhoneHttpRequest(final String phoneNumber)
+        {
+            this.phoneNumber = phoneNumber;
+        }
+
+        public String getPhoneNumber()
+        {
+            return phoneNumber;
         }
     }
 }

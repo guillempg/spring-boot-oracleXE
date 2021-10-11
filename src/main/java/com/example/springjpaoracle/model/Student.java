@@ -1,18 +1,8 @@
 package com.example.springjpaoracle.model;
 
+import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = "STUDENT")
@@ -29,15 +19,18 @@ public class Student
     @Column(unique = true, nullable = false)
     private String socialSecurityNumber;
 
+    @OneToMany(mappedBy = "relatedStudent")
+    private List<Phone> phoneNumbers;
+
     @OneToOne
     @JoinColumn(name = "USER_DETAILS_ID")
     private UserDetails personalData;
 
     @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(
-        name = "STUDENT_COURSE_REGISTER",
-        joinColumns = @JoinColumn(name = "STUDENT_ID", referencedColumnName = "ID"),
-        inverseJoinColumns = @JoinColumn(name = "COURSE_ID", referencedColumnName = "ID")
+            name = "STUDENT_COURSE_REGISTER",
+            joinColumns = @JoinColumn(name = "STUDENT_ID", referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "COURSE_ID", referencedColumnName = "ID")
     )
     private List<Course> courses;
 
@@ -96,6 +89,16 @@ public class Student
         return this;
     }
 
+    public List<Phone> getPhoneNumbers()
+    {
+        return phoneNumbers;
+    }
+
+    public void setPhoneNumbers(final List<Phone> phoneNumbers)
+    {
+        this.phoneNumbers = phoneNumbers;
+    }
+
     @Override
     public boolean equals(final Object o)
     {
@@ -107,9 +110,9 @@ public class Student
         {
             return false;
         }
-        Student student = (Student)o;
+        Student student = (Student) o;
         return id == student.id &&
-            socialSecurityNumber.equals(student.socialSecurityNumber);
+                socialSecurityNumber.equals(student.socialSecurityNumber);
     }
 
     @Override
