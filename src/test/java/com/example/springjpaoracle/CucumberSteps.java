@@ -156,7 +156,9 @@ public class CucumberSteps
     @When("we register students via messaging with details:")
     public void weRegisterStudentsViaMessagingWithDetails(final DataTable dataTable)
     {
-        tableToStudentsRequest(dataTable).forEach(request -> streamBridge.send(REGISTER_STUDENT_OUTPUT, request));
+        tableToStudentsRequest(dataTable).forEach(request -> streamBridge.send(
+                REGISTER_STUDENT_OUTPUT,
+                MessageBuilder.withPayload(request).setHeader("myHeader", "myValue").build()));
     }
 
     @Then("students should exits with following security social numbers:")
