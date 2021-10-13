@@ -48,3 +48,15 @@ Feature: Student registration and deletion
       | Road Runner     | Explosives 101, Fly over cliffs   | 333-333-333 |
     When we receive a delete student with ssn '111-111-111' message
     Then the student with ssn '111-111-111' and her courses registrations are deleted
+
+  Scenario: List students not registered to a course
+    Given the app is running
+    And we successfully register student with details:
+      | name            | courses                           | ssn         |
+      | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 |
+      | Tasmanian Devil | Explosives 101                    | 222-222-222 |
+      | Road Runner     | Explosives 101, Fly over cliffs   | 333-333-333 |
+    When we list students not registered to course 'Rocket riding 101' we get:
+      | name            |
+      | Tasmanian Devil |
+      | Road Runner     |

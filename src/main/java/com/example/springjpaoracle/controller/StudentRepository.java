@@ -1,13 +1,12 @@
 package com.example.springjpaoracle.controller;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.example.springjpaoracle.model.Student;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 public interface StudentRepository extends JpaRepository<Student, Integer>
 {
@@ -21,4 +20,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer>
     void deleteBySocialSecurityNumber(String socialSecurityNumber);
 
     Optional<Student> findBySocialSecurityNumber(String socialSecurityNumber);
+
+    @Query(value = "SELECT s from Student s WHERE s not in (select c.students from Course c where upper(c.name)=upper(?1))")
+    List<Student> findStudentsNotRegisteredToCourse(String courseName);
 }

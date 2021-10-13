@@ -1,15 +1,8 @@
 package com.example.springjpaoracle.model;
 
+import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
 
 @Entity
 @Table(name = "COURSE")
@@ -34,9 +27,10 @@ public class Course
         return id;
     }
 
-    public void setId(final int id)
+    public Course setId(final int id)
     {
         this.id = id;
+        return this;
     }
 
     public String getName()
@@ -44,9 +38,10 @@ public class Course
         return name;
     }
 
-    public void setName(final String name)
+    public Course setName(final String name)
     {
         this.name = name;
+        return this;
     }
 
     public String getDescription()
@@ -54,9 +49,10 @@ public class Course
         return description;
     }
 
-    public void setDescription(final String description)
+    public Course setDescription(final String description)
     {
         this.description = description;
+        return this;
     }
 
     public List<Student> getStudents()
@@ -64,9 +60,10 @@ public class Course
         return students;
     }
 
-    public void setStudents(final List<Student> students)
+    public Course setStudents(final List<Student> students)
     {
         this.students = students;
+        return this;
     }
 
     @Override
@@ -80,9 +77,9 @@ public class Course
         {
             return false;
         }
-        Course course = (Course)o;
+        Course course = (Course) o;
         return id == course.id &&
-            Objects.equals(name, course.name);
+                Objects.equals(name, course.name);
     }
 
     @Override
