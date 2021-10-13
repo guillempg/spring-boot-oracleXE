@@ -36,7 +36,25 @@ We will be using Oracle XE in a Docker container, which you can install through 
 `docker volume create oracle18.4.0XE`
 
 We will link this volume (a folder in your filesystem) to a specific folder within the container.
-You can check where is the volume in your filesystem with this command `docker volume inspect oracle18.4.0XE`.
+You can check where is the volume in your filesystem with this command `docker volume inspect oracle18.4.0XE`,
+you will see something like: 
+```
+[
+    {
+        "CreatedAt": "2021-10-01T09:40:52+02:00",
+        "Driver": "local",
+        "Labels": {},
+        "Mountpoint": "/var/lib/docker/volumes/oracle18.4.0XE/_data",
+        "Name": "oracle18.4.0XE",
+        "Options": {},
+        "Scope": "local"
+    }
+]
+```
+
+Create a folder in the project's root named `oracle18.4.0XE` and copy that the Mountpoint folder and all its contents there.
+This will be useful as the project is using [Testcontainers](https://www.testcontainers.org/) to automatically start a docker container
+with OracleXE, but we want it to use the data that we currently have instead of going through the slow initialization every time. 
 
 * Run docker image previously built. We will link our port 1521 to the container's port 1521,
 also link the shared directory created in the previous step to the container's /opt/oracle/oradata/ folder.
