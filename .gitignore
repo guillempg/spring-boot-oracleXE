@@ -36,3 +36,7 @@ out/
 
 ### VS Code ###
 .vscode/
+
+oracle18.4.0XE/
+
+.DS_Store
