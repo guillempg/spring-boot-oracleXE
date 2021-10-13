@@ -52,7 +52,11 @@ you will see something like:
 ]
 ```
 
-Create a folder in the project's root named `oracle18.4.0XE` and copy that the Mountpoint folder and all its contents there.
+Next, stop the docker container with `docker stop ora18xe` and copy that the Mountpoint folder and all its contents to
+a folder in the project's root named `oracle18.4.0XE`, executing the following command within the project's root folder:
+`sudo cp -Rp /var/lib/docker/volumes/oracle18.4.0XE/_data oracle18.4.0XE` (the `-p` will preserve the permissions and ownership of the files).
+Now start again the docker container with `docker start ora18xe`.
+
 This will be useful as the project is using [Testcontainers](https://www.testcontainers.org/) to automatically start a docker container
 with OracleXE, but we want it to use the data that we currently have instead of going through the slow initialization every time. 
 
