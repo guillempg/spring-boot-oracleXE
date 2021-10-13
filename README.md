@@ -128,3 +128,7 @@ ORDER BY table_name;
 (Oracle DBs does not support `show tables`).
 
 ## Data model
+
+## RabbitMQ admin console
+
+http://localhost:15672
