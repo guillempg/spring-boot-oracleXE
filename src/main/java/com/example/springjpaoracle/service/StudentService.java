@@ -77,4 +77,9 @@ public class StudentService
     {
         return studentRepository.findBySocialSecurityNumber(socialSecurityNumber);
     }
+
+    public List<Student> findStudentsNotRegisteredToCourse(String courseName)
+    {
+        return studentRepository.findStudentsNotRegisteredToCourse(courseName);
+    }
 }

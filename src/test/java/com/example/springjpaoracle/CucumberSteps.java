@@ -3,7 +3,6 @@ package com.example.springjpaoracle;
 import com.example.springjpaoracle.dto.LightweightStudentResponse;
 import com.example.springjpaoracle.dto.StudentResponse;
 import com.example.springjpaoracle.model.Student;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
@@ -38,27 +37,28 @@ public class CucumberSteps
     private final CompositeRepository uberRepository;
     private final StreamBridge streamBridge;
     private final MessageChannel studentDeleteChannel;
-    private final ObjectMapper objectMapper;
+    private final RabbitMQSupport rabbitMQSupport;
 
     public CucumberSteps(final ConfigurableApplicationContext context,
                          final TestRestTemplate template,
                          final CompositeRepository uberRepository,
                          final StreamBridge streamBridge,
                          @Qualifier("studentDeleteInput-in-0") final MessageChannel studentDeleteChannel,
-                         final ObjectMapper objectMapper)
+                         final RabbitMQSupport rabbitMQSupport)
     {
         this.context = context;
         this.template = template;
         this.uberRepository = uberRepository;
         this.streamBridge = streamBridge;
         this.studentDeleteChannel = studentDeleteChannel;
-        this.objectMapper = objectMapper;
+        this.rabbitMQSupport = rabbitMQSupport;
     }
 
     @After
     public void cleanTables()
     {
         uberRepository.cleanTables();
+        rabbitMQSupport.reset();
     }
 
     @Given("the app is running")
@@ -91,7 +91,10 @@ public class CucumberSteps
     {
         final String url = "/students/register";
 
-        final List<CourseHttpRequest> coursesRequested = Arrays.stream(courses.split(","))
+        final List<String> courseNames = Arrays.stream(courses.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList());
+        final List<CourseHttpRequest> coursesRequested = courseNames.stream()
                 .map(CourseHttpRequest::new)
                 .collect(Collectors.toList());
 
@@ -116,7 +119,7 @@ public class CucumberSteps
                 .collect(Collectors.toList());
 
         assertThat(registeredCourseNames)
-                .containsExactlyInAnyOrder(courses.split(","));
+                .containsExactlyInAnyOrder(courseNames.toArray(new String[0]));
     }
 
     @When("we submit a request to delete student with ssn {string}")
@@ -174,6 +177,24 @@ public class CucumberSteps
     public void deleteStudentWithSsnViaMessaging(final String socialSecurityNumber)
     {
         studentDeleteChannel.send(MessageBuilder.withPayload(socialSecurityNumber).build());
+    }
+
+    @When("we list students not registered to course {string} we get:")
+    public void listStudentsNotRegisteredToCourse(final String courseName, DataTable dataTable)
+    {
+        final String url = "/students/listStudentsNotEnrolled?courseName={name}";
+        final ResponseEntity<List<LightweightStudentResponse>> student = template.exchange(url, HttpMethod.GET, null,
+                new ParameterizedTypeReference<>()
+                {
+                }, courseName);
+        final List<String> expectedStudentNames = dataTable.asMaps().stream()
+                .map(entry -> entry.get("studentName"))
+                .collect(Collectors.toList());
+        List<String> studentNames = student.getBody().stream()
+                .map(resp -> resp.getName())
+                .collect(Collectors.toList());
+        assertThat(studentNames)
+                .containsExactlyInAnyOrderElementsOf(expectedStudentNames);
     }
 
     private List<StudentHttpRequest> tableToStudentsRequest(DataTable dataTable)

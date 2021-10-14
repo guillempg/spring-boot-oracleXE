@@ -35,21 +35,21 @@ public class StudentController
     {
 
         List<Student> students = studentService.findByNameIgnoreCase(name);
-        final List<StudentResponse> lightweightStudentRespons = students.stream()
+        final List<StudentResponse> lightweightStudentResponse = students.stream()
                 .map(s -> StudentResponse.from(s))
                 .collect(Collectors.toList());
 
-        return new ResponseEntity<>(lightweightStudentRespons, HttpStatus.OK);
+        return new ResponseEntity<>(lightweightStudentResponse, HttpStatus.OK);
     }
 
     @GetMapping(value = "/listEnrolledStudents")
     public ResponseEntity<List<LightweightStudentResponse>> listStudentsEnrolledToCourseName(@RequestParam final String courseName)
     {
         List<Student> students = studentService.findStudentsByCoursesNameIgnoreCase(courseName);
-        final List<LightweightStudentResponse> lightweightStudentRespons = students.stream()
+        final List<LightweightStudentResponse> lightweightStudentResponse = students.stream()
                 .map(s -> LightweightStudentResponse.from(s))
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(lightweightStudentRespons, HttpStatus.OK);
+        return new ResponseEntity<>(lightweightStudentResponse, HttpStatus.OK);
     }
 
     @DeleteMapping("{socialSecurityNumber}")
@@ -66,5 +66,15 @@ public class StudentController
                 .map(LightweightStudentResponse::from)
                 .map(ResponseEntity::ok)
                 .orElseThrow(() -> new StudentNotFoundException(socialSecurityNumber));
+    }
+
+    @GetMapping(value = "/listStudentsNotEnrolled")
+    public ResponseEntity<List<LightweightStudentResponse>> listStudentsNotEnrolledToCourseName(@RequestParam final String courseName)
+    {
+        List<Student> studentsNotRegisteredToCourse = studentService.findStudentsNotRegisteredToCourse(courseName);
+        final List<LightweightStudentResponse> lightweightStudentResponse = studentsNotRegisteredToCourse.stream()
+                .map(s -> LightweightStudentResponse.from(s))
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(lightweightStudentResponse, HttpStatus.OK);
     }
 }

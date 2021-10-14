@@ -35,6 +35,24 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
                 "spring.rabbitmq.username=" + rabbitMQContainer.getAdminUsername(),
                 "spring.rabbitmq.password=" + rabbitMQContainer.getAdminPassword()
         ).applyTo(applicationContext.getEnvironment());
+
+        resetRabbitMQ(applicationContext);
+    }
+
+    private void resetRabbitMQ(final ConfigurableApplicationContext applicationContext)
+    {
+        applicationContext.getBeanFactory().registerSingleton("rabbitMQSupport", (RabbitMQSupport) () ->
+        {
+            try
+            {
+                rabbitMQContainer.execInContainer("sh", "/opt/rabbitmq/sbin/rabbitmqctl", "stop_app");
+                rabbitMQContainer.execInContainer("sh", "/opt/rabbitmq/sbin/rabbitmqctl", "reset");
+                rabbitMQContainer.execInContainer("sh", "/opt/rabbitmq/sbin/rabbitmqctl", "start_app");
+            } catch (Exception e)
+            {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private void startOracleDb(ConfigurableApplicationContext applicationContext)
