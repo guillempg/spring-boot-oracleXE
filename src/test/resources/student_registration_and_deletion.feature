@@ -57,6 +57,6 @@ Feature: Student registration and deletion
       | Tasmanian Devil | Explosives 101                    | 222-222-222 |
       | Road Runner     | Explosives 101, Fly over cliffs   | 333-333-333 |
     When we list students not registered to course 'Rocket riding 101' we get:
-      | name            |
+      | studentName     |
       | Tasmanian Devil |
       | Road Runner     |

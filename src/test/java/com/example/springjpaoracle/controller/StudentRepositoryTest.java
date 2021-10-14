@@ -1,23 +1,27 @@
 package com.example.springjpaoracle.controller;
 
+import com.example.springjpaoracle.TestContainersInitializer;
 import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Student;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-//@ContextConfiguration(initializers = {TestContainersInitializer.class})
+@ContextConfiguration(initializers = {TestContainersInitializer.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class StudentRepositoryTest
 {
@@ -27,17 +31,18 @@ class StudentRepositoryTest
     @Autowired
     private CourseRepository courseRepository;
 
-    @AfterEach
+    @BeforeEach
     void setUp()
     {
-        try
-        {
-            courseRepository.deleteAll();
-            studentRepository.deleteAll();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+        courseRepository.deleteAll();
+        studentRepository.deleteAll();
+    }
+
+    @AfterEach
+    void cleanup()
+    {
+        courseRepository.deleteAll();
+        studentRepository.deleteAll();
     }
 
     @Test
@@ -51,13 +56,14 @@ class StudentRepositoryTest
         courseRepository.save(paintBlue);
 
 
-        final Student student1 = new Student().setName("Pink Panther").setCourses(Arrays.asList(paintPink)).setSocialSecurityNumber("111-111-111");
-        final Student student2 = new Student().setName("Mr. Egg").setCourses(Arrays.asList(paintBlue)).setSocialSecurityNumber("222-222-222");
+        final Student studentRegisteredToPink = new Student().setName("Pink Panther").setCourses(Arrays.asList(paintPink)).setSocialSecurityNumber("111-111-111");
+        final Student studentRegisteredToBlue = new Student().setName("Mr. Egg").setCourses(Arrays.asList(paintBlue)).setSocialSecurityNumber("222-222-222");
 
-        studentRepository.save(student1);
-        studentRepository.save(student2);
+        studentRepository.save(studentRegisteredToPink);
+        studentRepository.save(studentRegisteredToBlue);
 
         final List<Student> unregisteredToPaintBlue = studentRepository.findStudentsNotRegisteredToCourse("Paint Blue");
-        assertTrue(unregisteredToPaintBlue.contains(student1));
+        assertTrue(unregisteredToPaintBlue.contains(studentRegisteredToPink));
+        assertFalse(unregisteredToPaintBlue.contains(studentRegisteredToBlue));
     }
 }

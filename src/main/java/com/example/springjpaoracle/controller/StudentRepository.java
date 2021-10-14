@@ -21,6 +21,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer>
 
     Optional<Student> findBySocialSecurityNumber(String socialSecurityNumber);
 
-    @Query(value = "SELECT s from Student s WHERE s not in (select c.students from Course c where upper(c.name)=upper(?1))")
+    @Query(value = "SELECT s from Student s WHERE s.socialSecurityNumber not in (select s2.socialSecurityNumber from Student s2 JOIN s2.courses c where upper(c.name)=upper(?1))")
     List<Student> findStudentsNotRegisteredToCourse(String courseName);
 }
