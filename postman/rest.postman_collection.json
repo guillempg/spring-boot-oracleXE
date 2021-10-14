@@ -113,6 +113,35 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Save Score",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"score\": \"4.99\", \"courseName\":\"Explosives 101\", \"studentSocialSecurityNumber\": \"222-222-222\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/students/score",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"students",
+						"score"
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }

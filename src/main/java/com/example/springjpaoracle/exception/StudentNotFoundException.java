@@ -1,4 +1,4 @@
-package com.example.springjpaoracle.controller;
+package com.example.springjpaoracle.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

@@ -19,13 +19,30 @@ ext {
 
 def cucumberVersion = "6.11.0"
 
+task cucumber() {
+    dependsOn assemble, testClasses
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = ['--plugin', 'pretty', '--glue', 'com.example.springjpaoracle',
+                    '--tags', System.getProperty('cucumber.tags', 'not @WorkInProgress'),
+                    'src/test/resources/features']
+        }
+    }
+}
+
 dependencies {
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.springframework.cloud:spring-cloud-stream'
     implementation 'org.springframework.cloud:spring-cloud-stream-binder-rabbit'
     runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
+    testCompileOnly 'org.projectlombok:lombok:1.18.22'
     testImplementation 'org.springframework.amqp:spring-rabbit-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.testcontainers:junit-jupiter'
@@ -37,6 +54,12 @@ dependencies {
     testImplementation 'org.awaitility:awaitility:4.1.0'
 }
 
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation, runtimeOnly
+    }
+}
+
 dependencyManagement {
     imports {
         mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
@@ -44,6 +67,14 @@ dependencyManagement {
     }
 }
 
+tasks.register("slowJUnit", Test) {
+    useJUnitPlatform {
+        includeTags("slow")
+    }
+}
+
 test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags 'slow'
+    }
 }
