@@ -3,7 +3,6 @@ package com.example.springjpaoracle;
 import com.example.springjpaoracle.dto.LightweightStudentResponse;
 import com.example.springjpaoracle.dto.StudentResponse;
 import com.example.springjpaoracle.model.Student;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
@@ -38,27 +37,28 @@ public class CucumberSteps
     private final CompositeRepository uberRepository;
     private final StreamBridge streamBridge;
     private final MessageChannel studentDeleteChannel;
-    private final ObjectMapper objectMapper;
+    private final RabbitMQSupport rabbitMQSupport;
 
     public CucumberSteps(final ConfigurableApplicationContext context,
                          final TestRestTemplate template,
                          final CompositeRepository uberRepository,
                          final StreamBridge streamBridge,
                          @Qualifier("studentDeleteInput-in-0") final MessageChannel studentDeleteChannel,
-                         final ObjectMapper objectMapper)
+                         final RabbitMQSupport rabbitMQSupport)
     {
         this.context = context;
         this.template = template;
         this.uberRepository = uberRepository;
         this.streamBridge = streamBridge;
         this.studentDeleteChannel = studentDeleteChannel;
-        this.objectMapper = objectMapper;
+        this.rabbitMQSupport = rabbitMQSupport;
     }
 
     @After
     public void cleanTables()
     {
         uberRepository.cleanTables();
+        rabbitMQSupport.reset();
     }
 
     @Given("the app is running")
