@@ -3,8 +3,11 @@ package com.example.springjpaoracle.controller;
 import com.example.springjpaoracle.TestContainersInitializer;
 import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Student;
+import com.example.springjpaoracle.repository.CourseRepository;
+import com.example.springjpaoracle.repository.StudentRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @DataJpaTest
 @ContextConfiguration(initializers = {TestContainersInitializer.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Tag("slow")
 class StudentRepositoryTest
 {
     @Autowired

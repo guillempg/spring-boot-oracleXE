@@ -9,13 +9,13 @@ import lombok.experimental.Accessors;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "PHONE")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Table(name = "STUDENT_COURSE_SCORE")
+@EqualsAndHashCode
 @Getter
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class Phone
+public class StudentCourseScore
 {
     @Id
     @Column
@@ -24,10 +24,14 @@ public class Phone
     private int id;
 
     @Column
-    private String phoneNumber;
+    private Double score;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "relatedStudentId")
-    private Student relatedStudent;
+    @ManyToOne
+    @JoinColumn(name = "STUDENT_ID")
+    private Student student;
+
+    @ManyToOne
+    @JoinColumn(name = "COURSE_ID")
+    private Course course;
 
 }

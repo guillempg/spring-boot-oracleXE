@@ -1,11 +1,16 @@
 package com.example.springjpaoracle.service;
 
-import com.example.springjpaoracle.controller.CourseRepository;
-import com.example.springjpaoracle.controller.PhoneRepository;
-import com.example.springjpaoracle.controller.StudentRepository;
+import com.example.springjpaoracle.dto.ScoreRequest;
+import com.example.springjpaoracle.exception.CourseNotFoundException;
+import com.example.springjpaoracle.exception.StudentNotFoundException;
 import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Phone;
 import com.example.springjpaoracle.model.Student;
+import com.example.springjpaoracle.model.StudentCourseScore;
+import com.example.springjpaoracle.repository.CourseRepository;
+import com.example.springjpaoracle.repository.PhoneRepository;
+import com.example.springjpaoracle.repository.StudentCourseScoreRepository;
+import com.example.springjpaoracle.repository.StudentRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -18,12 +23,14 @@ public class StudentService
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
     private final PhoneRepository phoneRepository;
+    private final StudentCourseScoreRepository scoreRepository;
 
-    public StudentService(StudentRepository studentRepository, CourseRepository courseRepository, final PhoneRepository phoneRepository)
+    public StudentService(StudentRepository studentRepository, CourseRepository courseRepository, final PhoneRepository phoneRepository, final StudentCourseScoreRepository scoreRepository)
     {
         this.studentRepository = studentRepository;
         this.courseRepository = courseRepository;
         this.phoneRepository = phoneRepository;
+        this.scoreRepository = scoreRepository;
     }
 
     @Transactional
@@ -81,5 +88,20 @@ public class StudentService
     public List<Student> findStudentsNotRegisteredToCourse(String courseName)
     {
         return studentRepository.findStudentsNotRegisteredToCourse(courseName);
+    }
+
+    public StudentCourseScore score(final ScoreRequest scoreRequest)
+    {
+        final StudentCourseScore score = new StudentCourseScore();
+        final Student student = studentRepository.findBySocialSecurityNumber(scoreRequest.getStudentSocialSecurityNumber())
+                .orElseThrow(() -> new StudentNotFoundException("Student with ssn:" + scoreRequest.getStudentSocialSecurityNumber() + " not found"));
+        final Course course = courseRepository.findByNameIgnoreCase(scoreRequest.getCourseName())
+                .orElseThrow(() -> new CourseNotFoundException("Course with name " + scoreRequest.getCourseName() + " not found"));
+
+        score.setScore(scoreRequest.getScore());
+        score.setStudent(student);
+        score.setCourse(course);
+                
+        return scoreRepository.save(score);
     }
 }

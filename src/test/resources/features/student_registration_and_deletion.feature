@@ -60,3 +60,18 @@ Feature: Student registration and deletion
       | studentName     |
       | Tasmanian Devil |
       | Road Runner     |
+
+  @WorkInProgress
+  Scenario: Save student score
+    Given the app is running
+    And we successfully register student with details:
+      | name            | courses                           | ssn         |
+      | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 |
+    When we register student scores:
+      | studentSocialSecurityNumber | courseName        | score |
+      | 111-111-111                 | Explosives 101    | 4.99  |
+      | 111-111-111                 | Rocket riding 101 | 4.98  |
+    Then we see student scores:
+      | studentName     | courseName        | score |
+      | Wiley E. Coyote | Explosives 101    | 4.99  |
+      | Wiley E. Coyote | Rocket riding 101 | 4.98  |
