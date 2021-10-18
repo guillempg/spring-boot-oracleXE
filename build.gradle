@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.5.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
+    id 'com.google.cloud.tools.jib' version '3.1.4'
 }
 
 group = 'com.example'
@@ -35,12 +36,14 @@ task cucumber() {
 dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     compileOnly 'org.projectlombok:lombok:1.18.22'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.springframework.cloud:spring-cloud-stream'
     implementation 'org.springframework.cloud:spring-cloud-stream-binder-rabbit'
     runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
+    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
     testCompileOnly 'org.projectlombok:lombok:1.18.22'
     testImplementation 'org.springframework.amqp:spring-rabbit-test'
@@ -76,5 +79,14 @@ tasks.register("slowJUnit", Test) {
 test {
     useJUnitPlatform {
         excludeTags 'slow'
+    }
+}
+
+jib {
+    from {
+        image = "adoptopenjdk:11-jre-hotspot"
+    }
+    container {
+        mainClass = 'com.example.springjpaoracle.Application'
     }
 }

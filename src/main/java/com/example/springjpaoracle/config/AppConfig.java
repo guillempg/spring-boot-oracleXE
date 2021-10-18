@@ -5,6 +5,7 @@ import com.example.springjpaoracle.repository.PhoneRepository;
 import com.example.springjpaoracle.repository.StudentCourseScoreRepository;
 import com.example.springjpaoracle.repository.StudentRepository;
 import com.example.springjpaoracle.service.StudentService;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,8 +17,9 @@ public class AppConfig
     public StudentService studentService(StudentRepository studentRepository,
                                          CourseRepository courseRepository,
                                          PhoneRepository phoneRepository,
-                                         StudentCourseScoreRepository scoreRepository)
+                                         StudentCourseScoreRepository scoreRepository,
+                                         MeterRegistry registry)
     {
-        return new StudentService(studentRepository, courseRepository, phoneRepository, scoreRepository);
+        return new StudentService(studentRepository, courseRepository, phoneRepository, scoreRepository, registry);
     }
 }
