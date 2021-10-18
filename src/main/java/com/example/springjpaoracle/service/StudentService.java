@@ -11,6 +11,7 @@ import com.example.springjpaoracle.repository.CourseRepository;
 import com.example.springjpaoracle.repository.PhoneRepository;
 import com.example.springjpaoracle.repository.StudentCourseScoreRepository;
 import com.example.springjpaoracle.repository.StudentRepository;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -20,22 +21,26 @@ import java.util.stream.Collectors;
 
 public class StudentService
 {
+    public static final String REGISTER_STUDENT_REQUEST_COUNT = "registerStudentRequestCount";
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
     private final PhoneRepository phoneRepository;
     private final StudentCourseScoreRepository scoreRepository;
+    private final MeterRegistry registry;
 
-    public StudentService(StudentRepository studentRepository, CourseRepository courseRepository, final PhoneRepository phoneRepository, final StudentCourseScoreRepository scoreRepository)
+    public StudentService(StudentRepository studentRepository, CourseRepository courseRepository, final PhoneRepository phoneRepository, final StudentCourseScoreRepository scoreRepository, final MeterRegistry registry)
     {
         this.studentRepository = studentRepository;
         this.courseRepository = courseRepository;
         this.phoneRepository = phoneRepository;
         this.scoreRepository = scoreRepository;
+        this.registry = registry;
     }
 
     @Transactional
     public Student registerStudent(Student student)
     {
+        registry.counter(REGISTER_STUDENT_REQUEST_COUNT).increment();
         List<Course> courses = findOrCreateCourses(student.getCourses());
         student.setCourses(courses);
         List<Phone> phones = findOrCreatePhones(student.getPhoneNumbers());
@@ -101,7 +106,7 @@ public class StudentService
         score.setScore(scoreRequest.getScore());
         score.setStudent(student);
         score.setCourse(course);
-                
+
         return scoreRepository.save(score);
     }
 }

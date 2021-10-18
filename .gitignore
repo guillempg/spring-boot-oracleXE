@@ -38,5 +38,6 @@ out/
 .vscode/
 
 oracle18.4.0XE/
+grafana/**
 
 .DS_Store
