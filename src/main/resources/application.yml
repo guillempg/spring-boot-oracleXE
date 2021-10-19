@@ -1,4 +1,10 @@
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8081/auth/realms/springjpaoracle
+          jwk-set-uri: http://localhost:8081/auth/realms/springjpaoracle/protocol/openid-connect/certs
   application:
     name: producer-service
   cloud:

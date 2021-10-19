@@ -4,8 +4,10 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.BindMode;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.OracleContainer;
 import org.testcontainers.containers.RabbitMQContainer;
+import org.testcontainers.utility.DockerImageName;
 
 public class TestContainersInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext>
 {
@@ -19,11 +21,34 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
             .withUsername("testuser")
             .withPassword("testpassword");
 
+    private final GenericContainer<?> keycloak = new GenericContainer<>(DockerImageName.parse("jboss/keycloak:15.0.2"))
+            //.withCommand("bin/standalone.sh -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=/opt/jboss/keycloak/imports/realm-export.json -Dkeycloak.migration.strategy=OVERWRITE_EXISTING")
+            .withFileSystemBind("keycloak", "/opt/jboss/keycloak/imports")
+            .withExposedPorts(8080)
+            .withEnv("KEYCLOAK_USER", "admin")
+            .withEnv("KEYCLOAK_PASSWORD", "admin")
+            .withEnv("KEYCLOAK_IMPORT", "/opt/jboss/keycloak/imports/realm-export.json");
+
+
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext)
     {
-        startRabbitMQ(applicationContext);
+        startKeycloak(applicationContext);
         startOracleDb(applicationContext);
+        startRabbitMQ(applicationContext);
+    }
+
+    private void startKeycloak(final ConfigurableApplicationContext applicationContext)
+    {
+        keycloak.start();
+        final Integer mappedPort = keycloak.getMappedPort(8080);
+        final String host = keycloak.getHost();
+        final String certsUrl = String.format("http://%s:%d/auth/realms/springjpaoracle/protocol/openid-connect/certs", host, mappedPort);
+        final String issuerUrl = String.format("http://%s:%d/auth/realms/springjpaoracle", host, mappedPort);
+        TestPropertyValues.of(
+                "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=" + certsUrl,
+                "spring.security.oauth2.resourceserver.jwt.issuer-uri=" + issuerUrl
+        ).applyTo(applicationContext.getEnvironment());
     }
 
     private void startRabbitMQ(ConfigurableApplicationContext applicationContext)

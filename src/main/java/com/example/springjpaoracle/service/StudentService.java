@@ -70,6 +70,11 @@ public class StudentService
         }
     }
 
+    public List<Course> findAllCourses()
+    {
+        return courseRepository.findAll();
+    }
+
     public List<Student> findByNameIgnoreCase(final String name)
     {
         return studentRepository.findByNameIgnoreCase(name);
