@@ -111,7 +111,8 @@ public class CucumberSteps
                 coursesRequested,
                 phonesSubmitted);
 
-        final StudentResponse registeredStudent = template.postForObject(url, s, StudentResponse.class);
+        final ResponseEntity<StudentResponse> responseEntity = template.postForEntity(url, s, StudentResponse.class);
+        final StudentResponse registeredStudent = responseEntity.getBody();
         assertEquals(registeredStudent.getName(), studentName);
 
         final List<String> registeredCourseNames = registeredStudent.getCourses().stream()

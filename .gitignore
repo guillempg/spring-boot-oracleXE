@@ -39,5 +39,7 @@ out/
 
 oracle18.4.0XE/
 grafana/**
+keycloak/ojdbc8.jar
+
 
 .DS_Store
