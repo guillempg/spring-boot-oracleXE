@@ -60,8 +60,8 @@ class StudentRepositoryTest
         courseRepository.save(paintBlue);
 
 
-        final Student studentRegisteredToPink = new Student().setName("Pink Panther").setCourses(Arrays.asList(paintPink)).setSocialSecurityNumber("111-111-111");
-        final Student studentRegisteredToBlue = new Student().setName("Mr. Egg").setCourses(Arrays.asList(paintBlue)).setSocialSecurityNumber("222-222-222");
+        final Student studentRegisteredToPink = new Student().setCourses(Arrays.asList(paintPink)).setKeycloakId("111-111-111");
+        final Student studentRegisteredToBlue = new Student().setCourses(Arrays.asList(paintBlue)).setKeycloakId("222-222-222");
 
         studentRepository.save(studentRegisteredToPink);
         studentRepository.save(studentRegisteredToBlue);

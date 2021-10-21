@@ -1,5 +1,6 @@
 package com.example.springjpaoracle;
 
+import com.example.springjpaoracle.dto.CourseResponse;
 import com.example.springjpaoracle.dto.LightweightStudentResponse;
 import com.example.springjpaoracle.dto.StudentResponse;
 import com.example.springjpaoracle.model.Student;
@@ -74,7 +75,7 @@ public class CucumberSteps
         {
             try
             {
-                registerStudent(row.get("name"), row.get("ssn"), row.get("phones"), row.get("courses"));
+                registerStudent(row.get("keycloakId"), row.get("phones"), row.get("courses"));
             } catch (Exception e)
             {
                 fail("Student not registered: " + e.getMessage());
@@ -83,9 +84,8 @@ public class CucumberSteps
         }
     }
 
-    @When("we successfully register student with name {string} and ssn {string} and phones {string} on courses {string}")
-    public void registerStudent(final String studentName,
-                                final String socialSecurityNumber,
+    @When("we successfully register student with name {string} and keycloakId {string} and phones {string} on courses {string}")
+    public void registerStudent(final String keycloakId,
                                 final String phoneNumbers,
                                 final String courses)
     {
@@ -106,24 +106,23 @@ public class CucumberSteps
                     .collect(Collectors.toList());
         }
         final StudentHttpRequest s = new StudentHttpRequest(
-                studentName,
-                socialSecurityNumber,
+                keycloakId,
                 coursesRequested,
                 phonesSubmitted);
 
         final ResponseEntity<StudentResponse> responseEntity = template.postForEntity(url, s, StudentResponse.class);
         final StudentResponse registeredStudent = responseEntity.getBody();
-        assertEquals(registeredStudent.getName(), studentName);
+        assertEquals(registeredStudent.getKeycloakId(), keycloakId);
 
         final List<String> registeredCourseNames = registeredStudent.getCourses().stream()
-                .map(course -> course.getName())
+                .map(CourseResponse::getName)
                 .collect(Collectors.toList());
 
         assertThat(registeredCourseNames)
                 .containsExactlyInAnyOrder(courseNames.toArray(new String[0]));
     }
 
-    @When("we submit a request to delete student with ssn {string}")
+    @When("we submit a request to delete student with keycloakId {string}")
     public void deleteStudent(final String socialSecurityNumber)
     {
         final String url = "/students/{ssn}";
@@ -131,7 +130,7 @@ public class CucumberSteps
         assertTrue(outcome.getStatusCode().is2xxSuccessful());
     }
 
-    @Then("the student with ssn {string} and her courses registrations are deleted")
+    @Then("the student with keycloakId {string} and her courses registrations are deleted")
     public void checkStudentAndRegistrationsDeleted(final String socialSecurityNumber)
     {
         final String url = "/students/{ssn}";
@@ -147,14 +146,14 @@ public class CucumberSteps
                 new ParameterizedTypeReference<>()
                 {
                 }, courseName);
-        final List<String> expectedStudentNames = dataTable.asMaps().stream()
-                .map(entry -> entry.get("studentName"))
+        final List<String> expectedStudentKeycloakIds = dataTable.asMaps().stream()
+                .map(entry -> entry.get("keycloakId"))
                 .collect(Collectors.toList());
         List<String> studentNames = student.getBody().stream()
-                .map(resp -> resp.getName())
+                .map(LightweightStudentResponse::getKeycloakId)
                 .collect(Collectors.toList());
         assertThat(studentNames)
-                .containsExactly(expectedStudentNames.toArray(String[]::new));
+                .containsExactly(expectedStudentKeycloakIds.toArray(String[]::new));
     }
 
     @When("we register students via messaging with details:")
@@ -169,12 +168,12 @@ public class CucumberSteps
     public void studentsShouldExitsWithFollowingSecuritySocialNumbers(DataTable socialSecurityNumbers)
     {
         await().until(() -> socialSecurityNumbers.asList()
-                .stream().skip(1).map(ssn -> template.getForEntity("/students/{ssn}", Student.class, ssn))
+                .stream().skip(1).map(keycloakId -> template.getForEntity("/students/{keycloakId}", Student.class, keycloakId))
                 .map(ResponseEntity::getStatusCode).allMatch(HttpStatus::is2xxSuccessful));
 
     }
 
-    @When("we receive a delete student with ssn {string} message")
+    @When("we receive a delete student with keycloakId {string} message")
     public void deleteStudentWithSsnViaMessaging(final String socialSecurityNumber)
     {
         studentDeleteChannel.send(MessageBuilder.withPayload(socialSecurityNumber).build());
@@ -191,10 +190,10 @@ public class CucumberSteps
         final List<String> expectedStudentNames = dataTable.asMaps().stream()
                 .map(entry -> entry.get("studentName"))
                 .collect(Collectors.toList());
-        List<String> studentNames = student.getBody().stream()
-                .map(resp -> resp.getName())
+        List<String> studentKeycloakIds = student.getBody().stream()
+                .map(LightweightStudentResponse::getKeycloakId)
                 .collect(Collectors.toList());
-        assertThat(studentNames)
+        assertThat(studentKeycloakIds)
                 .containsExactlyInAnyOrderElementsOf(expectedStudentNames);
     }
 
@@ -215,31 +214,23 @@ public class CucumberSteps
                     .map(PhoneHttpRequest::new)
                     .collect(Collectors.toList());
         }
-        return new StudentHttpRequest(row.get("name"), row.get("ssn"), courses, phonesSubmitted);
+        return new StudentHttpRequest(row.get("keycloakId"), courses, phonesSubmitted);
     }
 
     static class StudentHttpRequest
     {
 
-        final String name;
-        final String socialSecurityNumber;
+        final String keycloakId;
         final List<CourseHttpRequest> courses;
         final List<PhoneHttpRequest> phones;
 
-        public StudentHttpRequest(final String name,
-                                  final String socialSecurityNumber,
+        public StudentHttpRequest(final String keycloakId,
                                   final List<CourseHttpRequest> courses,
                                   final List<PhoneHttpRequest> phones)
         {
-            this.name = name;
-            this.socialSecurityNumber = socialSecurityNumber;
+            this.keycloakId = keycloakId;
             this.courses = courses;
             this.phones = phones;
-        }
-
-        public String getName()
-        {
-            return name;
         }
 
         public List<CourseHttpRequest> getCourses()
@@ -247,9 +238,9 @@ public class CucumberSteps
             return courses;
         }
 
-        public String getSocialSecurityNumber()
+        public String getKeycloakId()
         {
-            return socialSecurityNumber;
+            return keycloakId;
         }
 
         public List<PhoneHttpRequest> getPhones()

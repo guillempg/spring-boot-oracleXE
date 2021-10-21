@@ -33,6 +33,9 @@ public class Course
     @ManyToMany(mappedBy = "courses", cascade = CascadeType.REMOVE)
     private List<Student> students;
 
+    @ManyToMany(mappedBy = "courses", cascade = CascadeType.REMOVE)
+    private List<Teacher> teachers;
+
     @OneToMany(mappedBy = "course")
     private List<StudentCourseScore> scores;
 }

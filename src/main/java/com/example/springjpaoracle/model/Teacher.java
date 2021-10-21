@@ -10,13 +10,13 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "STUDENT")
+@Table(name = "TEACHER")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class Student
+public class Teacher
 {
     @Id
     @Column
@@ -33,8 +33,8 @@ public class Student
 
     @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(
-            name = "STUDENT_COURSE_REGISTER",
-            joinColumns = @JoinColumn(name = "STUDENT_ID", referencedColumnName = "ID"),
+            name = "TEACHER_COURSE_ASSIGNATIONS",
+            joinColumns = @JoinColumn(name = "TEACHER_ID", referencedColumnName = "ID"),
             inverseJoinColumns = @JoinColumn(name = "COURSE_ID", referencedColumnName = "ID")
     )
     private List<Course> courses;

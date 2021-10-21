@@ -9,5 +9,5 @@ public class ScoreRequest
 {
     private double score;
     private String courseName;
-    private String studentSocialSecurityNumber;
+    private String keycloakId;
 }

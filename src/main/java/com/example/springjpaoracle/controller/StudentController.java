@@ -41,42 +41,30 @@ public class StudentController
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/listStudentByName")
-    public ResponseEntity<List<StudentResponse>> listStudentsByName(@RequestParam final String name)
-    {
-
-        List<Student> students = studentService.findByNameIgnoreCase(name);
-        final List<StudentResponse> lightweightStudentResponse = students.stream()
-                .map(s -> StudentResponse.from(s))
-                .collect(Collectors.toList());
-
-        return new ResponseEntity<>(lightweightStudentResponse, HttpStatus.OK);
-    }
-
     @GetMapping(value = "/listEnrolledStudents")
     public ResponseEntity<List<LightweightStudentResponse>> listStudentsEnrolledToCourseName(@RequestParam final String courseName)
     {
         List<Student> students = studentService.findStudentsByCoursesNameIgnoreCase(courseName);
         final List<LightweightStudentResponse> lightweightStudentResponse = students.stream()
-                .map(s -> LightweightStudentResponse.from(s))
+                .map(LightweightStudentResponse::from)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(lightweightStudentResponse, HttpStatus.OK);
     }
 
-    @DeleteMapping("{socialSecurityNumber}")
-    public ResponseEntity<Void> delete(@PathVariable final String socialSecurityNumber)
+    @DeleteMapping("{keycloakId}")
+    public ResponseEntity<Void> delete(@PathVariable final String keycloakId)
     {
-        studentService.deleteBySocialSecurityNumber(socialSecurityNumber);
+        studentService.deleteByKeycloakId(keycloakId);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("{socialSecurityNumber}")
-    public ResponseEntity<LightweightStudentResponse> findBySocialSecurityNumber(@PathVariable final String socialSecurityNumber)
+    @GetMapping("{keycloakId}")
+    public ResponseEntity<LightweightStudentResponse> findByKeycloakId(@PathVariable final String keycloakId)
     {
-        return studentService.findBySocialSecurityNumber(socialSecurityNumber)
+        return studentService.findByKeycloakId(keycloakId)
                 .map(LightweightStudentResponse::from)
                 .map(ResponseEntity::ok)
-                .orElseThrow(() -> new StudentNotFoundException(socialSecurityNumber));
+                .orElseThrow(() -> new StudentNotFoundException(keycloakId));
     }
 
     @GetMapping(value = "/listStudentsNotEnrolled")

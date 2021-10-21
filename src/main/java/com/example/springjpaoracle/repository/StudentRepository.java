@@ -10,17 +10,14 @@ import java.util.Optional;
 
 public interface StudentRepository extends JpaRepository<Student, Integer>
 {
-    @Query(value = "SELECT DISTINCT s FROM Student s LEFT JOIN FETCH s.courses WHERE s.name = ?1 ")
-    List<Student> findByNameIgnoreCase(String name);
-
-    @Query(value = "SELECT s FROM Course c INNER JOIN c.students as s WHERE c.name = ?1 ORDER BY s.name ASC")
+    @Query(value = "SELECT s FROM Course c INNER JOIN c.students as s WHERE c.name = ?1 ORDER BY s.keycloakId ASC")
     List<Student> findStudentsByCoursesNameIgnoreCase(String courseName);
 
     @Transactional
-    void deleteBySocialSecurityNumber(String socialSecurityNumber);
+    void deleteByKeycloakId(String keycloakId);
 
-    Optional<Student> findBySocialSecurityNumber(String socialSecurityNumber);
+    Optional<Student> findByKeycloakId(String keycloakId);
 
-    @Query(value = "SELECT s from Student s WHERE s.socialSecurityNumber not in (select s2.socialSecurityNumber from Student s2 JOIN s2.courses c where upper(c.name)=upper(?1))")
+    @Query(value = "SELECT s from Student s WHERE s.keycloakId not in (select s2.keycloakId from Student s2 JOIN s2.courses c where upper(c.name)=upper(?1))")
     List<Student> findStudentsNotRegisteredToCourse(String courseName);
 }

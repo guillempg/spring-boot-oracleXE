@@ -75,24 +75,19 @@ public class StudentService
         return courseRepository.findAll();
     }
 
-    public List<Student> findByNameIgnoreCase(final String name)
-    {
-        return studentRepository.findByNameIgnoreCase(name);
-    }
-
     public List<Student> findStudentsByCoursesNameIgnoreCase(final String courseName)
     {
         return studentRepository.findStudentsByCoursesNameIgnoreCase(courseName);
     }
 
-    public void deleteBySocialSecurityNumber(final String socialSecurityNumber)
+    public void deleteByKeycloakId(final String keycloakId)
     {
-        studentRepository.deleteBySocialSecurityNumber(socialSecurityNumber);
+        studentRepository.deleteByKeycloakId(keycloakId);
     }
 
-    public Optional<Student> findBySocialSecurityNumber(final String socialSecurityNumber)
+    public Optional<Student> findByKeycloakId(final String keycloakId)
     {
-        return studentRepository.findBySocialSecurityNumber(socialSecurityNumber);
+        return studentRepository.findByKeycloakId(keycloakId);
     }
 
     public List<Student> findStudentsNotRegisteredToCourse(String courseName)
@@ -103,8 +98,8 @@ public class StudentService
     public StudentCourseScore score(final ScoreRequest scoreRequest)
     {
         final StudentCourseScore score = new StudentCourseScore();
-        final Student student = studentRepository.findBySocialSecurityNumber(scoreRequest.getStudentSocialSecurityNumber())
-                .orElseThrow(() -> new StudentNotFoundException("Student with ssn:" + scoreRequest.getStudentSocialSecurityNumber() + " not found"));
+        final Student student = studentRepository.findByKeycloakId(scoreRequest.getKeycloakId())
+                .orElseThrow(() -> new StudentNotFoundException("Student with ssn:" + scoreRequest.getKeycloakId() + " not found"));
         final Course course = courseRepository.findByNameIgnoreCase(scoreRequest.getCourseName())
                 .orElseThrow(() -> new CourseNotFoundException("Course with name " + scoreRequest.getCourseName() + " not found"));
 

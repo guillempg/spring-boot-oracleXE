@@ -34,4 +34,8 @@ public class StudentCourseScore
     @JoinColumn(name = "COURSE_ID")
     private Course course;
 
+    @ManyToOne
+    @JoinColumn(name = "TEACHER_ID")
+    private Teacher teacher;
+
 }

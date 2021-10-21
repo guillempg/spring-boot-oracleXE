@@ -20,6 +20,6 @@ public class MessagingConfig
     @Bean
     public Consumer<String> studentDeleteInput(StudentService studentService)
     {
-        return studentService::deleteBySocialSecurityNumber;
+        return studentService::deleteByKeycloakId;
     }
 }
