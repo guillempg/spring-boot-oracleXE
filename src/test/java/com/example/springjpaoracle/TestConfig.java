@@ -1,7 +1,5 @@
 package com.example.springjpaoracle;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -10,17 +8,28 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.repository.CrudRepository;
 
+import java.util.List;
+
 @Lazy
 @TestConfiguration
 public class TestConfig
 {
     @Bean
-    public TestRestTemplate testRestTemplate(@Value("${local.server.port}") int localServerPort) {
+    public TestRestTemplate applicationRestTemplate(@Value("${local.server.port}") int localServerPort)
+    {
         return new TestRestTemplate(new RestTemplateBuilder().rootUri("http://localhost:" + localServerPort));
     }
 
     @Bean
-    public CompositeRepository uberRepository(List<CrudRepository<?,?>> allRepositories)
+    public KeycloakClient keycloakRestTemplate(@Value("${application.keycloak_root_uri}") String keycloakRootUri,
+                                               @Value("${application.client_id}") String clientId,
+                                               @Value("${application.client_secret}") String clientSecret)
+    {
+        return new KeycloakClientImpl(new RestTemplateBuilder().rootUri(keycloakRootUri).build(), clientId, clientSecret);
+    }
+
+    @Bean
+    public CompositeRepository uberRepository(List<CrudRepository<?, ?>> allRepositories)
     {
         return () -> allRepositories.forEach(CrudRepository::deleteAll);
     }

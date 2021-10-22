@@ -2,20 +2,23 @@ Feature: Student registration and deletion
 
   Scenario: Create new student
     Given the app is running
-    Then we successfully register student with details:
+    And 'admin' user 'nickfury' logs into the application with password 'test1'
+    Then admin user 'nickfury' successfully register student with details:
       | name            | courses                           | keycloakId  | phones                  |
       | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 | 555-111-222             |
       | Tasmanian Devil | Explosives 101                    | 222-222-222 | 555-333-333,555-444-444 |
 
   Scenario: Delete student and her course registrations
     Given the app is running
-    And we successfully register student with name 'Road Runner' and keycloakId '555-555-555' and phones '' on courses 'Dodge Missiles, Fly over Cliffs'
-    When we submit a request to delete student with keycloakId '555-555-555'
+    And 'admin' user 'nickfury' logs into the application with password 'test1'
+    And admin user 'nickfury' successfully register student with username 'antman' on courses 'Dodge Missiles, Fly over Cliffs'
+    When admin submit a request to delete student with keycloakId '555-555-555'
     Then the student with keycloakId '555-555-555' and her courses registrations are deleted
 
   Scenario: List all students, sorted by their name, enrolled to a course
     Given the app is running
-    And we successfully register student with details:
+    And 'admin' user 'nickfury' logs into the application with password 'test1'
+    And admin user 'nickfury' successfully register student with details:
       | name            | courses                           | keycloakId  | phones                  |
       | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 | 555-111-222             |
       | Tasmanian Devil | Explosives 101                    | 222-222-222 | 555-333-333,555-444-444 |
@@ -38,10 +41,11 @@ Feature: Student registration and deletion
       | 111-111-111 |
       | 222-222-222 |
 
-    ## this scenario uses spring integration message channel
+    ## this scenario uses spring integration message channel to delete student registration
   Scenario: Delete student from messaging queue
     Given the app is running
-    And we successfully register student with details:
+    And 'admin' user 'nickfury' logs into the application with password 'test1'
+    And admin user 'nickfury' successfully register student with details:
       | name            | courses                           | keycloakId  |
       | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 |
       | Tasmanian Devil | Explosives 101                    | 222-222-222 |
@@ -51,7 +55,8 @@ Feature: Student registration and deletion
 
   Scenario: List students not registered to a course
     Given the app is running
-    And we successfully register student with details:
+    And 'admin' user 'nickfury' logs into the application with password 'test1'
+    And admin user 'nickfury' successfully register student with details:
       | name            | courses                           | keycloakId  |
       | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 |
       | Tasmanian Devil | Explosives 101                    | 222-222-222 |
@@ -64,7 +69,8 @@ Feature: Student registration and deletion
   @WorkInProgress
   Scenario: Save student score
     Given the app is running
-    And we successfully register student with details:
+    And 'admin' user 'nickfury' logs into the application with password 'test1'
+    And admin user 'nickfury' successfully register student with details:
       | name            | courses                           | keycloakId  |
       | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 |
     When we register student scores:

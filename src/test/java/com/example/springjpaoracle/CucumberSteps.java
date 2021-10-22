@@ -1,8 +1,6 @@
 package com.example.springjpaoracle;
 
-import com.example.springjpaoracle.dto.CourseResponse;
 import com.example.springjpaoracle.dto.LightweightStudentResponse;
-import com.example.springjpaoracle.dto.StudentResponse;
 import com.example.springjpaoracle.model.Student;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -14,16 +12,11 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -34,21 +27,27 @@ public class CucumberSteps
 {
     public static final String REGISTER_STUDENT_OUTPUT = "register-student-output";
     private final ConfigurableApplicationContext context;
-    private final TestRestTemplate template;
+    private final TestRestTemplate applicationTemplate;
+    private final KeycloakClient keycloakClient;
     private final CompositeRepository uberRepository;
     private final StreamBridge streamBridge;
     private final MessageChannel studentDeleteChannel;
     private final RabbitMQSupport rabbitMQSupport;
+    private final ThreadLocal<Map<String, String>> currentToken;
 
     public CucumberSteps(final ConfigurableApplicationContext context,
-                         final TestRestTemplate template,
+                         final TestRestTemplate applicationTemplate,
+                         final KeycloakClient keycloakClient,
                          final CompositeRepository uberRepository,
                          final StreamBridge streamBridge,
                          @Qualifier("studentDeleteInput-in-0") final MessageChannel studentDeleteChannel,
                          final RabbitMQSupport rabbitMQSupport)
     {
         this.context = context;
-        this.template = template;
+        this.applicationTemplate = applicationTemplate;
+        this.currentToken = new ThreadLocal<>();
+        this.currentToken.set(new HashMap<>());
+        this.keycloakClient = keycloakClient;
         this.uberRepository = uberRepository;
         this.streamBridge = streamBridge;
         this.studentDeleteChannel = studentDeleteChannel;
@@ -62,31 +61,48 @@ public class CucumberSteps
         rabbitMQSupport.reset();
     }
 
+    @When("user {string} logs into the application with password {string}")
+    public void userLogsIn(String username, String password)
+    {
+        final String token = keycloakClient.getAccessToken(username, password);
+        currentToken.get().put(username, token);
+    }
+
+    @When("{string} user {string} logs into the application with password {string}")
+    public void userLogsIn(String role, String username, String password)
+    {
+        final String token = keycloakClient.getAccessToken(username, password);
+        // TODO finish this
+        //assertThat(decodeRolesFromToken(token)).contains(role);
+        currentToken.get().put(username, token);
+    }
+
     @Given("the app is running")
     public void applicationIsRunning()
     {
         assertTrue(context.isRunning());
     }
 
-    @When("we successfully register student with details:")
-    public void registerStudents(io.cucumber.datatable.DataTable dataTable)
+    @When("admin user {string} successfully register student with details:")
+    public void registerStudents(final String username,
+                                 io.cucumber.datatable.DataTable dataTable)
     {
         for (Map<String, String> row : dataTable.asMaps())
         {
             try
             {
-                registerStudent(row.get("keycloakId"), row.get("phones"), row.get("courses"));
+                registerStudent(username, row.get("name"), row.get("courses"));
             } catch (Exception e)
             {
-                fail("Student not registered: " + e.getMessage());
                 e.printStackTrace();
+                fail("Student not registered: " + e.getMessage());
             }
         }
     }
 
-    @When("we successfully register student with name {string} and keycloakId {string} and phones {string} on courses {string}")
-    public void registerStudent(final String keycloakId,
-                                final String phoneNumbers,
+    @When("admin user {string} successfully register student with username {string} on courses {string}")
+    public void registerStudent(final String adminUser,
+                                final String studentUsername,
                                 final String courses)
     {
         final String url = "/students/register";
@@ -99,34 +115,49 @@ public class CucumberSteps
                 .collect(Collectors.toList());
 
         List<PhoneHttpRequest> phonesSubmitted = Collections.emptyList();
-        if (phoneNumbers != null)
-        {
-            phonesSubmitted = Arrays.stream(phoneNumbers.split(","))
-                    .map(PhoneHttpRequest::new)
-                    .collect(Collectors.toList());
-        }
+        //if (phoneNumbers != null)
+        //{
+        //    phonesSubmitted = Arrays.stream(phoneNumbers.split(","))
+        //            .map(PhoneHttpRequest::new)
+        //            .collect(Collectors.toList());
+        //}
+        final String keycloakId = keycloakClient.getKeycloakIdByUsername(studentUsername, currentToken.get().get(adminUser));
         final StudentHttpRequest s = new StudentHttpRequest(
                 keycloakId,
                 coursesRequested,
                 phonesSubmitted);
 
-        final ResponseEntity<StudentResponse> responseEntity = template.postForEntity(url, s, StudentResponse.class);
-        final StudentResponse registeredStudent = responseEntity.getBody();
-        assertEquals(registeredStudent.getKeycloakId(), keycloakId);
+        // TODO retrieve keycloakId studentUsername
 
-        final List<String> registeredCourseNames = registeredStudent.getCourses().stream()
-                .map(CourseResponse::getName)
-                .collect(Collectors.toList());
 
-        assertThat(registeredCourseNames)
-                .containsExactlyInAnyOrder(courseNames.toArray(new String[0]));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(currentToken.get().get(adminUser));
+
+        HttpEntity<StudentHttpRequest> req = new HttpEntity<>(s, headers);
+//
+        //final ResponseEntity<StudentResponse> responseEntity = applicationTemplate.postForEntity(url, req, StudentResponse.class);
+//
+        //final StudentResponse registeredStudent = responseEntity.getBody();
+        //assertEquals(registeredStudent.getKeycloakId(), keycloakId);
+//
+        //final List<String> registeredCourseNames = registeredStudent.getCourses().stream()
+        //        .map(CourseResponse::getName)
+        //        .collect(Collectors.toList());
+//
+        //assertThat(registeredCourseNames)
+        //        .containsExactlyInAnyOrder(courseNames.toArray(new String[0]));
     }
 
-    @When("we submit a request to delete student with keycloakId {string}")
-    public void deleteStudent(final String socialSecurityNumber)
+    //private String retrieveKeycloakIdOfUsername(String username)
+    //{
+    //    currentToken.get().computeIfAbsent(username, );
+    //}
+
+    @When("admin submit a request to delete student with keycloakId {string}")
+    public void deleteStudent(final String keycloakId)
     {
         final String url = "/students/{ssn}";
-        final ResponseEntity<Void> outcome = template.exchange(url, HttpMethod.DELETE, null, Void.class, socialSecurityNumber);
+        final ResponseEntity<Void> outcome = applicationTemplate.exchange(url, HttpMethod.DELETE, null, Void.class, keycloakId);
         assertTrue(outcome.getStatusCode().is2xxSuccessful());
     }
 
@@ -134,7 +165,7 @@ public class CucumberSteps
     public void checkStudentAndRegistrationsDeleted(final String socialSecurityNumber)
     {
         final String url = "/students/{ssn}";
-        final ResponseEntity<Student> student = template.getForEntity(url, Student.class, socialSecurityNumber);
+        final ResponseEntity<Student> student = applicationTemplate.getForEntity(url, Student.class, socialSecurityNumber);
         assertEquals(student.getStatusCode(), HttpStatus.NOT_FOUND);
     }
 
@@ -142,7 +173,7 @@ public class CucumberSteps
     public void requestListOfEnrolledStudents(final String courseName, final DataTable dataTable)
     {
         final String url = "/students/listEnrolledStudents?courseName={name}";
-        final ResponseEntity<List<LightweightStudentResponse>> student = template.exchange(url, HttpMethod.GET, null,
+        final ResponseEntity<List<LightweightStudentResponse>> student = applicationTemplate.exchange(url, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>()
                 {
                 }, courseName);
@@ -168,7 +199,7 @@ public class CucumberSteps
     public void studentsShouldExitsWithFollowingSecuritySocialNumbers(DataTable socialSecurityNumbers)
     {
         await().until(() -> socialSecurityNumbers.asList()
-                .stream().skip(1).map(keycloakId -> template.getForEntity("/students/{keycloakId}", Student.class, keycloakId))
+                .stream().skip(1).map(keycloakId -> applicationTemplate.getForEntity("/students/{keycloakId}", Student.class, keycloakId))
                 .map(ResponseEntity::getStatusCode).allMatch(HttpStatus::is2xxSuccessful));
 
     }
@@ -183,7 +214,7 @@ public class CucumberSteps
     public void listStudentsNotRegisteredToCourse(final String courseName, DataTable dataTable)
     {
         final String url = "/students/listStudentsNotEnrolled?courseName={name}";
-        final ResponseEntity<List<LightweightStudentResponse>> student = template.exchange(url, HttpMethod.GET, null,
+        final ResponseEntity<List<LightweightStudentResponse>> student = applicationTemplate.exchange(url, HttpMethod.GET, null,
                 new ParameterizedTypeReference<>()
                 {
                 }, courseName);
@@ -217,9 +248,13 @@ public class CucumberSteps
         return new StudentHttpRequest(row.get("keycloakId"), courses, phonesSubmitted);
     }
 
+    //private Set<String> decodeRolesFromToken(String token)
+    //{
+    //    return CustomJwtConverter.getRoles(token);
+    //}
+
     static class StudentHttpRequest
     {
-
         final String keycloakId;
         final List<CourseHttpRequest> courses;
         final List<PhoneHttpRequest> phones;

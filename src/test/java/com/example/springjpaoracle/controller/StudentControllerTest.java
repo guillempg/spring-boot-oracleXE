@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -43,6 +44,7 @@ class StudentControllerTest
         mockedMvc.perform(get("/students/{keycloakId}", EXISTING_KEYCLOAK_ID))
                 .andDo(print())
                 .andExpect(status().isUnauthorized());
+        verifyNoInteractions(studentService);
     }
 
     @Test
@@ -85,6 +87,7 @@ class StudentControllerTest
                         .header("Authorization", getAuthorizationHeader(jwt)))
                 .andDo(print())
                 .andExpect(status().isForbidden());
+        verifyNoInteractions(studentService);
     }
 
     @Test

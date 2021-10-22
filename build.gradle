@@ -44,6 +44,7 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-stream-binder-rabbit'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'com.auth0:java-jwt:3.18.2'
     runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'

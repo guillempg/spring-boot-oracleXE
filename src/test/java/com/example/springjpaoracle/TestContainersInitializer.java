@@ -5,7 +5,6 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.*;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
@@ -106,6 +105,7 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
         final String issuerUrl = String.format("http://%s:%d/auth/realms/springjpaoracle", host, mappedPort);
         TestPropertyValues.of(
                 "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=" + certsUrl,
+                "application.keycloak_root_uri=" + issuerUrl,
                 "spring.security.oauth2.resourceserver.jwt.issuer-uri=" + issuerUrl
         ).applyTo(applicationContext.getEnvironment());
     }
