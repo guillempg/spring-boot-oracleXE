@@ -190,11 +190,13 @@ First we need to create a docker network:
 Then, from root folder of the project, we start an oracle container pointing to the volume inside
 folder `oracle18.4.0XE` of this project:
 
-`docker run -d --name ora18xeBDD --net keycloak-network \
+```bash
+docker run -d --name ora18xeBDD --net keycloak-network \
 -p 1521:1521 \
 -p 5500:5500 \
 -v $(pwd)/oracle18.4.0XE:/opt/oracle/oradata \
-oracle/database:18.4.0-xe`
+oracle/database:18.4.0-xe
+```
 
 In order to not mix our application and keycloak tables, we create a new Oracle keycloak user using a SYSTEM datasource:
 
@@ -218,7 +220,8 @@ and copy it inside project folder `keycloak`. Make sure the file is named `ojdbc
 Next, we start a keycloak container in the same docker network (keycloak-network). It will create all keycloak tables
 and initialize a `springjpaoracle` realm within our Oracle XE DB:
 
-`docker run -p 8088:8080 --name keycloak --net keycloak-network \
+```bash
+docker run -d -p 8088:8080 --name keycloak --net keycloak-network \
 -e JAVA_OPTS_APPEND=-Dkeycloak.profile.feature.upload_scripts=enabled \
 -e KEYCLOAK_USER=admin \
 -e KEYCLOAK_PASSWORD=admin \
@@ -231,7 +234,8 @@ and initialize a `springjpaoracle` realm within our Oracle XE DB:
 -e DB_PASSWORD=keycloak \
 -v $(pwd)/keycloak/realm-export.json:/tmp/example-realm.json \
 -v $(pwd)/keycloak/ojdbc8.jar:/opt/jboss/keycloak/modules/system/layers/base/com/oracle/jdbc/main/driver/ojdbc.jar \
-jboss/keycloak`
+jboss/keycloak
+```
 
 Have a look at your local Keycloak visiting `http://localhost:8088` with username `admin` and password `admin` as
 configured above.

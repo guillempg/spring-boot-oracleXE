@@ -9,6 +9,7 @@ import com.example.springjpaoracle.model.Student;
 import com.example.springjpaoracle.service.StudentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -59,6 +60,7 @@ public class StudentController
     }
 
     @GetMapping("{keycloakId}")
+    @PreAuthorize("@isOwnerOrAnyAuthorities.validate(#keycloakId, 'admin')")
     public ResponseEntity<LightweightStudentResponse> findByKeycloakId(@PathVariable final String keycloakId)
     {
         return studentService.findByKeycloakId(keycloakId)
