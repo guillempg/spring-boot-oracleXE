@@ -21,11 +21,16 @@ public class TestConfig
     }
 
     @Bean
-    public KeycloakClient keycloakRestTemplate(@Value("${application.keycloak_root_uri}") String keycloakRootUri,
+    public KeycloakClient keycloakRestTemplate(@Value("${application.keycloak_auth_root_uri}") String keycloakAuthRootUri,
+                                               @Value("${application.keycloak_admin_root_uri}") String keycloakAdminRootUri,
                                                @Value("${application.client_id}") String clientId,
                                                @Value("${application.client_secret}") String clientSecret)
     {
-        return new KeycloakClientImpl(new RestTemplateBuilder().rootUri(keycloakRootUri).build(), clientId, clientSecret);
+        return new KeycloakClientImpl(
+                new RestTemplateBuilder().rootUri(keycloakAuthRootUri).build(),
+                new RestTemplateBuilder().rootUri(keycloakAdminRootUri).build(),
+                clientId,
+                clientSecret);
     }
 
     @Bean

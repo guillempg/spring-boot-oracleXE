@@ -4,67 +4,67 @@ Feature: Student registration and deletion
     Given the app is running
     And 'admin' user 'nickfury' logs into the application with password 'test1'
     Then admin user 'nickfury' successfully register student with details:
-      | name            | courses                           | keycloakId  | phones                  |
-      | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 | 555-111-222             |
-      | Tasmanian Devil | Explosives 101                    | 222-222-222 | 555-333-333,555-444-444 |
+      | name      | courses                           |
+      | antman    | Explosives 101, Rocket riding 101 |
+      | spiderman | Explosives 101                    |
 
   Scenario: Delete student and her course registrations
     Given the app is running
     And 'admin' user 'nickfury' logs into the application with password 'test1'
-    And admin user 'nickfury' successfully register student with username 'antman' on courses 'Dodge Missiles, Fly over Cliffs'
-    When admin submit a request to delete student with keycloakId '555-555-555'
-    Then the student with keycloakId '555-555-555' and her courses registrations are deleted
+    And 'nickfury' successfully register student with username 'antman' on courses 'Dodge Missiles, Fly over Cliffs'
+    When 'nickfury' submits a request to delete student 'antman'
+    Then 'nickfury' verifies student 'antman' and her courses registrations are deleted
 
-  Scenario: List all students, sorted by their name, enrolled to a course
+  Scenario: List all students enrolled to a course
     Given the app is running
     And 'admin' user 'nickfury' logs into the application with password 'test1'
     And admin user 'nickfury' successfully register student with details:
-      | name            | courses                           | keycloakId  | phones                  |
-      | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 | 555-111-222             |
-      | Tasmanian Devil | Explosives 101                    | 222-222-222 | 555-333-333,555-444-444 |
-      | Road Runner     | Explosives 101, Fly over cliffs   | 333-333-333 |                         |
-    When we request the list of students enrolled to course 'Explosives 101' we receive:
-      | keycloakId  |
-      | 333-333-333 |
-      | 222-222-222 |
-      | 111-111-111 |
+      | name      | courses                           | phones                  |
+      | antman    | Explosives 101, Rocket riding 101 | 555-111-222             |
+      | spiderman | Explosives 101                    | 555-333-333,555-444-444 |
+      | deadpool  | Explosives 101, Fly over cliffs   |                         |
+    When 'nickfury' request the list of students enrolled to course 'Explosives 101':
+      | name      |
+      | antman    |
+      | deadpool  |
+      | spiderman |
 
     ## This one uses testcontainer with rabbitmq
   Scenario: Create new student from messaging queue
     Given the app is running
-    When we register students via messaging with details:
-      | name            | courses                           | keycloakId  |
-      | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 |
-      | Tasmanian Devil | Explosives 101                    | 222-222-222 |
-    Then students should exits with following security social numbers:
-      | keycloakId  |
-      | 111-111-111 |
-      | 222-222-222 |
+    And 'admin' user 'nickfury' logs into the application with password 'test1'
+    When 'nickfury' registers students via messaging with details:
+      | name      | courses                           |
+      | antman    | Explosives 101, Rocket riding 101 |
+      | spiderman | Explosives 101                    |
+    Then 'nickfury' verifies that students exist with the following names:
+      | name      |
+      | antman    |
+      | spiderman |
 
     ## this scenario uses spring integration message channel to delete student registration
   Scenario: Delete student from messaging queue
     Given the app is running
     And 'admin' user 'nickfury' logs into the application with password 'test1'
     And admin user 'nickfury' successfully register student with details:
-      | name            | courses                           | keycloakId  |
-      | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 |
-      | Tasmanian Devil | Explosives 101                    | 222-222-222 |
-      | Road Runner     | Explosives 101, Fly over cliffs   | 333-333-333 |
-    When we receive a delete student with keycloakId '111-111-111' message
-    Then the student with keycloakId '111-111-111' and her courses registrations are deleted
+      | name      | courses                           |
+      | antman    | Explosives 101, Rocket riding 101 |
+      | spiderman | Explosives 101                    |
+    When 'nickfury' deletes student with name 'antman' via messaging
+    Then 'nickfury' verifies student 'antman' and her courses registrations are deleted
 
   Scenario: List students not registered to a course
     Given the app is running
     And 'admin' user 'nickfury' logs into the application with password 'test1'
     And admin user 'nickfury' successfully register student with details:
-      | name            | courses                           | keycloakId  |
-      | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 |
-      | Tasmanian Devil | Explosives 101                    | 222-222-222 |
-      | Road Runner     | Explosives 101, Fly over cliffs   | 333-333-333 |
-    When we list students not registered to course 'Rocket riding 101' we get:
-      | keycloakId  |
-      | 222-222-222 |
-      | 333-333-333 |
+      | name      | courses                           | keycloakId  |
+      | antman    | Explosives 101, Rocket riding 101 | 111-111-111 |
+      | spiderman | Explosives 101                    | 222-222-222 |
+      | deadpool  | Explosives 101, Fly over cliffs   | 333-333-333 |
+    When 'nickfury' lists students not registered to course 'Rocket riding 101':
+      | name      |
+      | spiderman |
+      | deadpool  |
 
   @WorkInProgress
   Scenario: Save student score

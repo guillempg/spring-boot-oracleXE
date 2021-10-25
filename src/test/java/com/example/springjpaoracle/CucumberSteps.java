@@ -1,6 +1,8 @@
 package com.example.springjpaoracle;
 
+import com.example.springjpaoracle.dto.CourseResponse;
 import com.example.springjpaoracle.dto.LightweightStudentResponse;
+import com.example.springjpaoracle.dto.StudentResponse;
 import com.example.springjpaoracle.model.Student;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
@@ -16,7 +18,10 @@ import org.springframework.http.*;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -33,7 +38,7 @@ public class CucumberSteps
     private final StreamBridge streamBridge;
     private final MessageChannel studentDeleteChannel;
     private final RabbitMQSupport rabbitMQSupport;
-    private final ThreadLocal<Map<String, String>> currentToken;
+    private final ThreadLocal<TestCache> testCache;
 
     public CucumberSteps(final ConfigurableApplicationContext context,
                          final TestRestTemplate applicationTemplate,
@@ -45,8 +50,8 @@ public class CucumberSteps
     {
         this.context = context;
         this.applicationTemplate = applicationTemplate;
-        this.currentToken = new ThreadLocal<>();
-        this.currentToken.set(new HashMap<>());
+        this.testCache = new ThreadLocal<>();
+        this.testCache.set(new TestCache(keycloakClient));
         this.keycloakClient = keycloakClient;
         this.uberRepository = uberRepository;
         this.streamBridge = streamBridge;
@@ -64,8 +69,7 @@ public class CucumberSteps
     @When("user {string} logs into the application with password {string}")
     public void userLogsIn(String username, String password)
     {
-        final String token = keycloakClient.getAccessToken(username, password);
-        currentToken.get().put(username, token);
+        testCache.get().getToken(username, password);
     }
 
     @When("{string} user {string} logs into the application with password {string}")
@@ -74,7 +78,7 @@ public class CucumberSteps
         final String token = keycloakClient.getAccessToken(username, password);
         // TODO finish this
         //assertThat(decodeRolesFromToken(token)).contains(role);
-        currentToken.get().put(username, token);
+        testCache.get().getToken(username, password);
     }
 
     @Given("the app is running")
@@ -100,7 +104,7 @@ public class CucumberSteps
         }
     }
 
-    @When("admin user {string} successfully register student with username {string} on courses {string}")
+    @When("{string} successfully register student with username {string} on courses {string}")
     public void registerStudent(final String adminUser,
                                 final String studentUsername,
                                 final String courses)
@@ -115,125 +119,164 @@ public class CucumberSteps
                 .collect(Collectors.toList());
 
         List<PhoneHttpRequest> phonesSubmitted = Collections.emptyList();
-        //if (phoneNumbers != null)
-        //{
-        //    phonesSubmitted = Arrays.stream(phoneNumbers.split(","))
-        //            .map(PhoneHttpRequest::new)
-        //            .collect(Collectors.toList());
-        //}
-        final String keycloakId = keycloakClient.getKeycloakIdByUsername(studentUsername, currentToken.get().get(adminUser));
+
+        String keycloakId = testCache.get().getKeycloakIdByUsername(adminUser, studentUsername);
         final StudentHttpRequest s = new StudentHttpRequest(
                 keycloakId,
                 coursesRequested,
                 phonesSubmitted);
 
-        // TODO retrieve keycloakId studentUsername
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(testCache.get().getToken(adminUser));
+        HttpEntity<StudentHttpRequest> req = new HttpEntity<>(s, headers);
 
+        final ResponseEntity<StudentResponse> responseEntity = applicationTemplate.postForEntity(url, req, StudentResponse.class);
+
+        final StudentResponse registeredStudent = responseEntity.getBody();
+        assertEquals(registeredStudent.getKeycloakId(), keycloakId);
+
+        final List<String> registeredCourseNames = registeredStudent.getCourses().stream()
+                .map(CourseResponse::getName)
+                .collect(Collectors.toList());
+
+        assertThat(registeredCourseNames)
+                .containsExactlyInAnyOrder(courseNames.toArray(new String[0]));
+    }
+
+    @When("{string} submits a request to delete student {string}")
+    public void deleteStudent(
+            final String adminUser,
+            final String studentUser)
+    {
+        final String keycloakId = testCache.get().getKeycloakIdByUsername(adminUser, studentUser);
+        final String url = "/students/{keycloakId}";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(testCache.get().getToken(adminUser));
+        HttpEntity<Void> req = new HttpEntity<>(null, headers);
+
+        final ResponseEntity<Void> outcome = applicationTemplate.exchange(url, HttpMethod.DELETE, req, Void.class, keycloakId);
+        assertThat(outcome.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Then("{string} verifies student {string} and her courses registrations are deleted")
+    public void checkStudentAndRegistrationsDeleted(
+            final String adminUsername,
+            final String studentUsername)
+    {
+        final String keycloakId = testCache.get().getKeycloakIdByUsername(adminUsername, studentUsername);
+        final String url = "/students/{keycloakId}";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(currentToken.get().get(adminUser));
+        headers.setBearerAuth(testCache.get().getToken(adminUsername));
+        HttpEntity<Student> req = new HttpEntity<>(null, headers);
 
-        HttpEntity<StudentHttpRequest> req = new HttpEntity<>(s, headers);
-//
-        //final ResponseEntity<StudentResponse> responseEntity = applicationTemplate.postForEntity(url, req, StudentResponse.class);
-//
-        //final StudentResponse registeredStudent = responseEntity.getBody();
-        //assertEquals(registeredStudent.getKeycloakId(), keycloakId);
-//
-        //final List<String> registeredCourseNames = registeredStudent.getCourses().stream()
-        //        .map(CourseResponse::getName)
-        //        .collect(Collectors.toList());
-//
-        //assertThat(registeredCourseNames)
-        //        .containsExactlyInAnyOrder(courseNames.toArray(new String[0]));
-    }
-
-    //private String retrieveKeycloakIdOfUsername(String username)
-    //{
-    //    currentToken.get().computeIfAbsent(username, );
-    //}
-
-    @When("admin submit a request to delete student with keycloakId {string}")
-    public void deleteStudent(final String keycloakId)
-    {
-        final String url = "/students/{ssn}";
-        final ResponseEntity<Void> outcome = applicationTemplate.exchange(url, HttpMethod.DELETE, null, Void.class, keycloakId);
-        assertTrue(outcome.getStatusCode().is2xxSuccessful());
-    }
-
-    @Then("the student with keycloakId {string} and her courses registrations are deleted")
-    public void checkStudentAndRegistrationsDeleted(final String socialSecurityNumber)
-    {
-        final String url = "/students/{ssn}";
-        final ResponseEntity<Student> student = applicationTemplate.getForEntity(url, Student.class, socialSecurityNumber);
+        final ResponseEntity<Student> student = applicationTemplate.exchange(url, HttpMethod.GET, req, Student.class, keycloakId);
         assertEquals(student.getStatusCode(), HttpStatus.NOT_FOUND);
     }
 
-    @When("we request the list of students enrolled to course {string} we receive:")
-    public void requestListOfEnrolledStudents(final String courseName, final DataTable dataTable)
+    @When("{string} request the list of students enrolled to course {string}:")
+    public void requestListOfEnrolledStudents(
+            final String adminUsername,
+            final String courseName,
+            final DataTable dataTable)
     {
         final String url = "/students/listEnrolledStudents?courseName={name}";
-        final ResponseEntity<List<LightweightStudentResponse>> student = applicationTemplate.exchange(url, HttpMethod.GET, null,
-                new ParameterizedTypeReference<>()
-                {
-                }, courseName);
-        final List<String> expectedStudentKeycloakIds = dataTable.asMaps().stream()
-                .map(entry -> entry.get("keycloakId"))
-                .collect(Collectors.toList());
-        List<String> studentNames = student.getBody().stream()
-                .map(LightweightStudentResponse::getKeycloakId)
-                .collect(Collectors.toList());
-        assertThat(studentNames)
-                .containsExactly(expectedStudentKeycloakIds.toArray(String[]::new));
-    }
-
-    @When("we register students via messaging with details:")
-    public void weRegisterStudentsViaMessagingWithDetails(final DataTable dataTable)
-    {
-        tableToStudentsRequest(dataTable).forEach(request -> streamBridge.send(
-                REGISTER_STUDENT_OUTPUT,
-                MessageBuilder.withPayload(request).setHeader("myHeader", "myValue").build()));
-    }
-
-    @Then("students should exits with following security social numbers:")
-    public void studentsShouldExitsWithFollowingSecuritySocialNumbers(DataTable socialSecurityNumbers)
-    {
-        await().until(() -> socialSecurityNumbers.asList()
-                .stream().skip(1).map(keycloakId -> applicationTemplate.getForEntity("/students/{keycloakId}", Student.class, keycloakId))
-                .map(ResponseEntity::getStatusCode).allMatch(HttpStatus::is2xxSuccessful));
-
-    }
-
-    @When("we receive a delete student with keycloakId {string} message")
-    public void deleteStudentWithSsnViaMessaging(final String socialSecurityNumber)
-    {
-        studentDeleteChannel.send(MessageBuilder.withPayload(socialSecurityNumber).build());
-    }
-
-    @When("we list students not registered to course {string} we get:")
-    public void listStudentsNotRegisteredToCourse(final String courseName, DataTable dataTable)
-    {
-        final String url = "/students/listStudentsNotEnrolled?courseName={name}";
-        final ResponseEntity<List<LightweightStudentResponse>> student = applicationTemplate.exchange(url, HttpMethod.GET, null,
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(testCache.get().getToken(adminUsername));
+        HttpEntity<Student> req = new HttpEntity<>(null, headers);
+        final ResponseEntity<List<LightweightStudentResponse>> student = applicationTemplate.exchange(url, HttpMethod.GET, req,
                 new ParameterizedTypeReference<>()
                 {
                 }, courseName);
         final List<String> expectedStudentNames = dataTable.asMaps().stream()
-                .map(entry -> entry.get("studentName"))
+                .map(entry -> entry.get("name"))
                 .collect(Collectors.toList());
-        List<String> studentKeycloakIds = student.getBody().stream()
+        List<String> studentNames = student.getBody().stream()
                 .map(LightweightStudentResponse::getKeycloakId)
+                .map(keycloakId -> testCache.get().findUsernameByKeycloakId(keycloakId, adminUsername))
                 .collect(Collectors.toList());
-        assertThat(studentKeycloakIds)
+        assertThat(studentNames)
+                .containsExactlyInAnyOrder(expectedStudentNames.toArray(String[]::new));
+    }
+
+    @When("{string} registers students via messaging with details:")
+    public void weRegisterStudentsViaMessagingWithDetails(
+            final String adminUsername,
+            final DataTable registeredUsernames)
+    {
+        tableToStudentsRequest(adminUsername, registeredUsernames).forEach(request -> streamBridge.send(
+                REGISTER_STUDENT_OUTPUT,
+                MessageBuilder.withPayload(request).setHeader("myHeader", "myValue").build()));
+    }
+
+    @Then("{string} verifies that students exist with the following names:")
+    public void studentsShouldExitsWithFollowingNames(
+            final String adminUsername,
+            final DataTable expectedNames)
+    {
+        List<String> expectedKeycloakIds = expectedNames.asList()
+                .stream()
+                .skip(1)
+                .map(name -> testCache.get().getKeycloakIdByUsername(adminUsername, name))
+                .collect(Collectors.toList());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(testCache.get().getToken(adminUsername));
+        HttpEntity<Student> req = new HttpEntity<>(null, headers);
+        final String url = "/students/{keycloakId}";
+
+        await().until(() -> expectedKeycloakIds.stream()
+                .map(keycloakId -> applicationTemplate.exchange(url, HttpMethod.GET, req, Student.class, keycloakId))
+                .map(ResponseEntity::getStatusCode)
+                .allMatch(HttpStatus::is2xxSuccessful));
+    }
+
+    @When("{string} deletes student with name {string} via messaging")
+    public void deleteStudentWithSsnViaMessaging(
+            final String adminUsername,
+            final String studentName)
+    {
+        final String keycloakId = testCache.get().getKeycloakIdByUsername(adminUsername, studentName);
+        studentDeleteChannel.send(MessageBuilder.withPayload(keycloakId).build());
+    }
+
+    @When("{string} lists students not registered to course {string}:")
+    public void listStudentsNotRegisteredToCourse(
+            final String adminUsername,
+            final String courseName,
+            final DataTable dataTable)
+    {
+        final String url = "/students/listStudentsNotEnrolled?courseName={name}";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(testCache.get().getToken(adminUsername));
+        HttpEntity<Student> req = new HttpEntity<>(null, headers);
+
+        final ResponseEntity<List<LightweightStudentResponse>> student = applicationTemplate.exchange(url, HttpMethod.GET, req,
+                new ParameterizedTypeReference<>()
+                {
+                }, courseName);
+        final List<String> expectedStudentNames = dataTable.asMaps().stream()
+                .map(entry -> entry.get("name"))
+                .collect(Collectors.toList());
+        List<String> studentNames = student.getBody().stream()
+                .map(LightweightStudentResponse::getKeycloakId)
+                .map(keycloakId -> testCache.get().findUsernameByKeycloakId(keycloakId, adminUsername))
+                .collect(Collectors.toList());
+        assertThat(studentNames)
                 .containsExactlyInAnyOrderElementsOf(expectedStudentNames);
     }
 
-    private List<StudentHttpRequest> tableToStudentsRequest(DataTable dataTable)
+    private List<StudentHttpRequest> tableToStudentsRequest(
+            final String adminUsername,
+            final DataTable dataTable)
     {
-        return dataTable.asMaps().stream().map(this::rowToRequest).collect(Collectors.toList());
+        return dataTable.asMaps().stream().map(c -> rowToRequest(adminUsername, c)).collect(Collectors.toList());
     }
 
-    private StudentHttpRequest rowToRequest(Map<String, String> row)
+    private StudentHttpRequest rowToRequest(
+            final String adminUsername,
+            final Map<String, String> row)
     {
         List<CourseHttpRequest> courses = Arrays.stream(row.get("courses").split(",")).map(String::trim)
                 .map(CourseHttpRequest::new).collect(Collectors.toList());
@@ -245,13 +288,10 @@ public class CucumberSteps
                     .map(PhoneHttpRequest::new)
                     .collect(Collectors.toList());
         }
-        return new StudentHttpRequest(row.get("keycloakId"), courses, phonesSubmitted);
-    }
 
-    //private Set<String> decodeRolesFromToken(String token)
-    //{
-    //    return CustomJwtConverter.getRoles(token);
-    //}
+        final String keycloakId = testCache.get().getKeycloakIdByUsername(adminUsername, row.get("name"));
+        return new StudentHttpRequest(keycloakId, courses, phonesSubmitted);
+    }
 
     static class StudentHttpRequest
     {

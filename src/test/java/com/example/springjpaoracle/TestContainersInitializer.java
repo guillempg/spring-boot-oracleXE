@@ -9,6 +9,7 @@ import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
+import java.util.Arrays;
 
 @Slf4j
 public class TestContainersInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext>
@@ -51,9 +52,17 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
     @Override
     public void initialize(ConfigurableApplicationContext applicationContext)
     {
-        startRabbitMQ(applicationContext);
-        startOracleDb(applicationContext);
-        startKeycloak(applicationContext);
+        if (Arrays.asList(applicationContext.getEnvironment().getActiveProfiles()).contains("cucumber"))
+        {
+            startRabbitMQ(applicationContext);
+            startOracleDb(applicationContext);
+            startKeycloak(applicationContext);
+        } else
+        {
+            applicationContext.getBeanFactory().registerSingleton("rabbitMQSupport", (RabbitMQSupport) () ->
+            {
+            });
+        }
     }
 
     private void startRabbitMQ(ConfigurableApplicationContext applicationContext)
@@ -103,9 +112,11 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
         final String host = keycloak.getHost();
         final String certsUrl = String.format("http://%s:%d/auth/realms/springjpaoracle/protocol/openid-connect/certs", host, mappedPort);
         final String issuerUrl = String.format("http://%s:%d/auth/realms/springjpaoracle", host, mappedPort);
+        final String adminUrl = String.format("http://%s:%d/auth/admin/realms/springjpaoracle", host, mappedPort);
         TestPropertyValues.of(
                 "spring.security.oauth2.resourceserver.jwt.jwk-set-uri=" + certsUrl,
-                "application.keycloak_root_uri=" + issuerUrl,
+                "application.keycloak_auth_root_uri=" + issuerUrl,
+                "application.keycloak_admin_root_uri=" + adminUrl,
                 "spring.security.oauth2.resourceserver.jwt.issuer-uri=" + issuerUrl
         ).applyTo(applicationContext.getEnvironment());
     }

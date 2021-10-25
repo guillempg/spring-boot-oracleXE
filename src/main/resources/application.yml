@@ -1,5 +1,6 @@
 application:
-  keycloak_root_uri: http://localhost:8088/auth/realms/springjpaoracle
+  keycloak_auth_root_uri: http://localhost:8088/auth/realms/springjpaoracle
+  keycloak_admin_root_uri: http://localhost:8088/auth/admin/realms/springjpaoracle/
   client_id: springjpaoracle
   client_secret: w8t76w34563ty7hegvsiety8934cv3456yu3o5c4
 spring:

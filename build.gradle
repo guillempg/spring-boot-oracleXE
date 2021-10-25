@@ -80,6 +80,7 @@ tasks.register("slowJUnit", Test) {
 }
 
 test {
+    systemProperty 'spring.profiles.active', 'cucumber'
     useJUnitPlatform {
         excludeTags 'slow'
     }
