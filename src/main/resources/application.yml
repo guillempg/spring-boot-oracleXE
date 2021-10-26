@@ -36,7 +36,7 @@ spring:
         format_sql: false
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     open-in-view: false
   datasource:
     url: "jdbc:oracle:thin:@localhost:${ORACLE_PORT:1521}:XE"

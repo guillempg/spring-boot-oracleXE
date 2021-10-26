@@ -17,10 +17,12 @@ public class AppConfig
                                          PhoneRepository phoneRepository,
                                          StudentCourseScoreRepository scoreRepository,
                                          MeterRegistry registry,
-                                         final StudentRegistrationRepository studentRegistrationRepository)
+                                         final StudentRegistrationRepository studentRegistrationRepository,
+                                         final TeacherRepository teacherRepository)
     {
         return new StudentService(studentRepository,
                 courseRepository,
+                teacherRepository,
                 phoneRepository,
                 scoreRepository,
                 registry,

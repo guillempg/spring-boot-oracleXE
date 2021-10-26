@@ -326,6 +326,7 @@ public class CucumberSteps
             assertThat(response.getBody().getCourseName()).isEqualTo(r.getCourseName());
             assertThat(response.getBody().getScore()).isEqualTo(r.getScore());
             assertThat(response.getBody().getStudentKeycloakId()).isEqualTo(r.getStudentKeycloakId());
+            assertThat(response.getBody().getTeacherKeycloakId()).isEqualTo(r.getTeacherKeycloakId());
         });
     }
 

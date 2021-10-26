@@ -9,6 +9,7 @@ import com.example.springjpaoracle.model.TeacherAssignation;
 import com.example.springjpaoracle.repository.CourseRepository;
 import com.example.springjpaoracle.repository.TeacherAssignationRepository;
 import com.example.springjpaoracle.repository.TeacherRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 
@@ -26,6 +27,7 @@ public class TeacherService
         this.teacherAssignationRepository = teacherAssignationRepository;
     }
 
+    @Transactional
     public TeacherAssignation assignTeacher(final AssignTeacherRequest assignTeacherRequest)
     {
         final Teacher teacher = teacherRepository.findByKeycloakId(assignTeacherRequest.getTeacherKeycloakId())
@@ -36,9 +38,9 @@ public class TeacherService
                 Arrays.asList(assignTeacherRequest.getCourseName())).get(0);
 
         final TeacherAssignation teacherAssignation = teacherAssignationRepository.findByTeacherIdAndCourseName(teacher.getId(), course.getName())
-                .orElse(teacherAssignationRepository.save(new TeacherAssignation().setTeacher(teacher).setCourse(course)));
+                .orElseGet(() -> teacherAssignationRepository.save(new TeacherAssignation().setTeacher(teacher).setCourse(course)));
 
-        return teacherAssignationRepository.save(teacherAssignation);
+        return teacherAssignation;
     }
 
     public Teacher findOrSaveTeacher(final SaveTeacherRequest saveTeacherRequest)
