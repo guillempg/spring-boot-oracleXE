@@ -1,8 +1,7 @@
 package com.example.springjpaoracle.controller;
 
 import com.example.springjpaoracle.dto.LightweightStudentResponse;
-import com.example.springjpaoracle.dto.ScoreRequest;
-import com.example.springjpaoracle.dto.StudentCourseScoreResponse;
+import com.example.springjpaoracle.dto.RegistrationRequest;
 import com.example.springjpaoracle.dto.StudentResponse;
 import com.example.springjpaoracle.exception.StudentNotFoundException;
 import com.example.springjpaoracle.model.Student;
@@ -27,18 +26,10 @@ public class StudentController
     }
 
     @PostMapping(value = "/register")
-    public ResponseEntity<StudentResponse> registerStudent(@RequestBody Student student)
+    public ResponseEntity<StudentResponse> registerStudent(@RequestBody RegistrationRequest registrationRequest)
     {
-        final var savedStudent = studentService.registerStudent(student);
+        final var savedStudent = studentService.registerStudent(registrationRequest);
         final StudentResponse resp = StudentResponse.from(savedStudent);
-        return new ResponseEntity<>(resp, HttpStatus.OK);
-    }
-
-    @PostMapping(value = "/score")
-    public ResponseEntity<StudentCourseScoreResponse> score(@RequestBody ScoreRequest score)
-    {
-        final var savedScore = studentService.score(score);
-        final StudentCourseScoreResponse resp = StudentCourseScoreResponse.from(savedScore);
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
 

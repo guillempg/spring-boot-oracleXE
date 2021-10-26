@@ -16,9 +16,9 @@ public class StudentCourseScoreResponse
     public static StudentCourseScoreResponse from(final StudentCourseScore savedScore)
     {
         final StudentCourseScoreResponse resp = new StudentCourseScoreResponse();
-        resp.setStudentKeycloakId(savedScore.getStudent().getKeycloakId());
+        resp.setStudentKeycloakId(savedScore.getRegistration().getStudent().getKeycloakId());
         resp.setTeacherKeycloakId(savedScore.getTeacher().getKeycloakId());
-        resp.setCourseName(savedScore.getCourse().getName());
+        resp.setCourseName(savedScore.getRegistration().getCourse().getName());
         resp.setScore(savedScore.getScore());
         return resp;
     }

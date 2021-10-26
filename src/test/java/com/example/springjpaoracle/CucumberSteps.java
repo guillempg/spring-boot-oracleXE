@@ -1,14 +1,14 @@
 package com.example.springjpaoracle;
 
-import com.example.springjpaoracle.dto.CourseResponse;
-import com.example.springjpaoracle.dto.LightweightStudentResponse;
-import com.example.springjpaoracle.dto.StudentResponse;
+import com.example.springjpaoracle.dto.*;
 import com.example.springjpaoracle.model.Student;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import lombok.Value;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,6 +61,7 @@ public class CucumberSteps
     }
 
     @After
+    @Before
     public void cleanTables()
     {
         uberRepository.cleanTables();
@@ -84,6 +86,7 @@ public class CucumberSteps
     @Given("the app is running")
     public void applicationIsRunning()
     {
+        System.out.println("active profile:" + Arrays.stream(context.getEnvironment().getActiveProfiles()).collect(Collectors.joining(",")));
         assertTrue(context.isRunning());
     }
 
@@ -114,8 +117,7 @@ public class CucumberSteps
         final List<String> courseNames = Arrays.stream(courses.split(","))
                 .map(String::trim)
                 .collect(Collectors.toList());
-        final List<CourseHttpRequest> coursesRequested = courseNames.stream()
-                .map(CourseHttpRequest::new)
+        final List<String> coursesRequested = courseNames.stream()
                 .collect(Collectors.toList());
 
         List<PhoneHttpRequest> phonesSubmitted = Collections.emptyList();
@@ -267,19 +269,129 @@ public class CucumberSteps
                 .containsExactlyInAnyOrderElementsOf(expectedStudentNames);
     }
 
+    @When("{string} saves teacher {string}")
+    public void saveTeacher(final String adminUsername,
+                            final String teacherName)
+    {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(testCache.get().getToken(adminUsername));
+
+        final String teacherKeycloakId = testCache.get().getKeycloakIdByUsername(adminUsername, teacherName);
+
+        SaveTeacherRequest req = new SaveTeacherRequest();
+        req.setKeycloakId(teacherKeycloakId);
+
+        HttpEntity<SaveTeacherRequest> request = new HttpEntity<>(req, headers);
+        final String url = "/courses/saveteacher";
+        final ResponseEntity<TeacherResponse> responseEntity = applicationTemplate.postForEntity(url, request, TeacherResponse.class);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody().getKeycloakId()).isEqualTo(teacherKeycloakId);
+    }
+
+    @When("{string} assigns teacher with details:")
+    public void assignsTeacher(final String adminUsername,
+                               final DataTable dataTable)
+    {
+        final String url = "/courses/assignteacher";
+
+        tableToAssignTeacherRequest(adminUsername, dataTable).forEach(req ->
+        {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(testCache.get().getToken(adminUsername));
+
+            HttpEntity<AssignTeacherRequest> request = new HttpEntity<>(req, headers);
+
+            final ResponseEntity<TeacherAssignationResponse> responseEntity = applicationTemplate.postForEntity(url, request, TeacherAssignationResponse.class);
+            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(responseEntity.getBody().getCourseName()).isEqualTo(req.getCourseName());
+            assertThat(responseEntity.getBody().getTeacherKeycloakId()).isEqualTo(req.getTeacherKeycloakId());
+        });
+    }
+
+    @When("{string} registers student scores with hack {string}:")
+    public void registers_student_scores(final String teacherUsername,
+                                         final String adminUsername,
+                                         final DataTable dataTable)
+    {
+        final String url = "/courses/score";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(testCache.get().getToken(teacherUsername));
+
+        tableToScoreRequest(teacherUsername, adminUsername, dataTable).forEach(r ->
+        {
+            final HttpEntity<ScoreRequest> scoreRequest = new HttpEntity<>(r, headers);
+            final ResponseEntity<StudentCourseScoreResponse> response = applicationTemplate.postForEntity(url, scoreRequest,
+                    StudentCourseScoreResponse.class);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(response.getBody().getCourseName()).isEqualTo(r.getCourseName());
+            assertThat(response.getBody().getScore()).isEqualTo(r.getScore());
+            assertThat(response.getBody().getStudentKeycloakId()).isEqualTo(r.getStudentKeycloakId());
+        });
+    }
+
+    private List<AssignTeacherRequest> tableToAssignTeacherRequest(final String adminUsername,
+                                                                   final DataTable dataTable)
+    {
+        return dataTable.asMaps().stream()
+                .flatMap(e -> rowToTeacherAssignmentRequest(adminUsername, e))
+                .collect(Collectors.toList());
+    }
+
+    private Stream<AssignTeacherRequest> rowToTeacherAssignmentRequest(final String adminUsername,
+                                                                       final Map<String, String> row)
+    {
+        final String teacherName = row.get("name");
+        final String teacherKeycloakId = testCache.get().getKeycloakIdByUsername(adminUsername, teacherName);
+
+        List<String> courses = Arrays.stream(row.get("coursesAssigned").split(",")).map(String::trim)
+                .collect(Collectors.toList());
+
+        return courses.stream()
+                .map(courseName -> new AssignTeacherRequest()
+                        .setCourseName(courseName)
+                        .setTeacherKeycloakId(teacherKeycloakId))
+                .collect(Collectors.toList()).stream();
+    }
+
+    private List<ScoreRequest> tableToScoreRequest(
+            final String teacherUsername,
+            final String adminUsername,
+            final DataTable dataTable)
+    {
+        return dataTable.asMaps().stream().skip(1)
+                .map(e -> rowToScoreRequest(adminUsername, teacherUsername, e))
+                .collect(Collectors.toList());
+    }
+
+    private ScoreRequest rowToScoreRequest(final String adminUsername,
+                                           final String teacherUsername,
+                                           final Map<String, String> row)
+    {
+        final String studentName = row.get("studentName");
+        final String courseName = row.get("courseName");
+        final Double score = Double.valueOf(row.get("score"));
+
+        final ScoreRequest req = new ScoreRequest();
+        req.setScore(score);
+        req.setCourseName(courseName);
+        req.setStudentKeycloakId(testCache.get().getKeycloakIdByUsername(adminUsername, studentName));
+        req.setTeacherKeycloakId(testCache.get().getKeycloakIdByUsername(adminUsername, teacherUsername));
+        return req;
+    }
+
     private List<StudentHttpRequest> tableToStudentsRequest(
             final String adminUsername,
             final DataTable dataTable)
     {
-        return dataTable.asMaps().stream().map(c -> rowToRequest(adminUsername, c)).collect(Collectors.toList());
+        return dataTable.asMaps().stream().map(c -> rowToStudentRequest(adminUsername, c)).collect(Collectors.toList());
     }
 
-    private StudentHttpRequest rowToRequest(
+    private StudentHttpRequest rowToStudentRequest(
             final String adminUsername,
             final Map<String, String> row)
     {
-        List<CourseHttpRequest> courses = Arrays.stream(row.get("courses").split(",")).map(String::trim)
-                .map(CourseHttpRequest::new).collect(Collectors.toList());
+        List<String> courses = Arrays.stream(row.get("courses").split(",")).map(String::trim)
+                .collect(Collectors.toList());
         List<PhoneHttpRequest> phonesSubmitted = Collections.emptyList();
         if (row.get("phones") != null &&
                 row.get("phones").length() > 0)
@@ -293,50 +405,12 @@ public class CucumberSteps
         return new StudentHttpRequest(keycloakId, courses, phonesSubmitted);
     }
 
+    @Value
     static class StudentHttpRequest
     {
-        final String keycloakId;
-        final List<CourseHttpRequest> courses;
+        final String studentKeycloakId;
+        final List<String> courseNames;
         final List<PhoneHttpRequest> phones;
-
-        public StudentHttpRequest(final String keycloakId,
-                                  final List<CourseHttpRequest> courses,
-                                  final List<PhoneHttpRequest> phones)
-        {
-            this.keycloakId = keycloakId;
-            this.courses = courses;
-            this.phones = phones;
-        }
-
-        public List<CourseHttpRequest> getCourses()
-        {
-            return courses;
-        }
-
-        public String getKeycloakId()
-        {
-            return keycloakId;
-        }
-
-        public List<PhoneHttpRequest> getPhones()
-        {
-            return phones;
-        }
-    }
-
-    static class CourseHttpRequest
-    {
-        final String name;
-
-        public CourseHttpRequest(final String name)
-        {
-            this.name = name;
-        }
-
-        public String getName()
-        {
-            return name;
-        }
     }
 
     static class PhoneHttpRequest

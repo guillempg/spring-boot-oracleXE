@@ -2,13 +2,13 @@ package com.example.springjpaoracle.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
-@Getter
 @Setter
-public class ScoreRequest
+@Getter
+@Accessors(chain = true)
+public class AssignTeacherRequest
 {
-    private double score;
-    private String courseName;
-    private String studentKeycloakId;
     private String teacherKeycloakId;
+    private String courseName;
 }

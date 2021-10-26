@@ -1,16 +1,12 @@
 package com.example.springjpaoracle.service;
 
+import com.example.springjpaoracle.dto.RegistrationRequest;
 import com.example.springjpaoracle.dto.ScoreRequest;
 import com.example.springjpaoracle.exception.CourseNotFoundException;
 import com.example.springjpaoracle.exception.StudentNotFoundException;
-import com.example.springjpaoracle.model.Course;
-import com.example.springjpaoracle.model.Phone;
-import com.example.springjpaoracle.model.Student;
-import com.example.springjpaoracle.model.StudentCourseScore;
-import com.example.springjpaoracle.repository.CourseRepository;
-import com.example.springjpaoracle.repository.PhoneRepository;
-import com.example.springjpaoracle.repository.StudentCourseScoreRepository;
-import com.example.springjpaoracle.repository.StudentRepository;
+import com.example.springjpaoracle.exception.StudentRegistrationNotFoundException;
+import com.example.springjpaoracle.model.*;
+import com.example.springjpaoracle.repository.*;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,33 +23,33 @@ public class StudentService
     private final PhoneRepository phoneRepository;
     private final StudentCourseScoreRepository scoreRepository;
     private final MeterRegistry registry;
+    private final StudentRegistrationRepository studentRegistrationRepository;
 
-    public StudentService(StudentRepository studentRepository, CourseRepository courseRepository, final PhoneRepository phoneRepository, final StudentCourseScoreRepository scoreRepository, final MeterRegistry registry)
+    public StudentService(StudentRepository studentRepository, CourseRepository courseRepository, final PhoneRepository phoneRepository, final StudentCourseScoreRepository scoreRepository, final MeterRegistry registry, final StudentRegistrationRepository studentRegistrationRepository)
     {
         this.studentRepository = studentRepository;
         this.courseRepository = courseRepository;
         this.phoneRepository = phoneRepository;
         this.scoreRepository = scoreRepository;
         this.registry = registry;
+        this.studentRegistrationRepository = studentRegistrationRepository;
     }
 
     @Transactional
-    public Student registerStudent(Student student)
+    public Student registerStudent(RegistrationRequest registrationRequest)
     {
         registry.counter(REGISTER_STUDENT_REQUEST_COUNT).increment();
-        List<Course> courses = findOrCreateCourses(student.getCourses());
-        student.setCourses(courses);
-        List<Phone> phones = findOrCreatePhones(student.getPhoneNumbers());
-        student.setPhoneNumbers(phones);
-        return studentRepository.save(student);
-    }
-
-    private List<Course> findOrCreateCourses(final List<Course> courses)
-    {
-        return courses.stream()
-                .map((course) -> courseRepository.findByNameIgnoreCase(course.getName())
-                        .orElseGet(() -> courseRepository.save(course)))
+        Student student = new Student().setKeycloakId(registrationRequest.getStudentKeycloakId());
+        List<StudentRegistration> registrations = ServiceUtil.findOrCreateCourses(
+                        courseRepository,
+                        registrationRequest.getCourseNames()).stream()
+                .map((course) -> new StudentRegistration().setCourse(course).setStudent(student))
                 .collect(Collectors.toList());
+        student.setRegistrations(registrations);
+
+        //List<Phone> phones = findOrCreatePhones(registrationRequest.getPhoneNumbers());
+        //registrationRequest.setPhoneNumbers(phones);
+        return studentRepository.save(student);
     }
 
     private List<Phone> findOrCreatePhones(final List<Phone> phones)
@@ -98,14 +94,15 @@ public class StudentService
     public StudentCourseScore score(final ScoreRequest scoreRequest)
     {
         final StudentCourseScore score = new StudentCourseScore();
-        final Student student = studentRepository.findByKeycloakId(scoreRequest.getKeycloakId())
-                .orElseThrow(() -> new StudentNotFoundException("Student with ssn:" + scoreRequest.getKeycloakId() + " not found"));
+        final Student student = studentRepository.findByKeycloakId(scoreRequest.getStudentKeycloakId())
+                .orElseThrow(() -> new StudentNotFoundException("Student with ssn:" + scoreRequest.getStudentKeycloakId() + " not found"));
         final Course course = courseRepository.findByNameIgnoreCase(scoreRequest.getCourseName())
                 .orElseThrow(() -> new CourseNotFoundException("Course with name " + scoreRequest.getCourseName() + " not found"));
+        final StudentRegistration registration = studentRegistrationRepository.findByStudentIdAndCourseId(student.getId(), course.getId())
+                .orElseThrow(() -> new StudentRegistrationNotFoundException(student.getId(), course.getId()));
 
         score.setScore(scoreRequest.getScore());
-        score.setStudent(student);
-        score.setCourse(course);
+        score.setRegistration(registration);
 
         return scoreRepository.save(score);
     }

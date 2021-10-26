@@ -7,16 +7,18 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
-@Table(name = "COURSE")
+@Table(
+        name = "STUDENT_COURSE_REGISTER",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"STUDENT_ID", "COURSE_ID"})}
+)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class Course
+public class StudentRegistration
 {
     @Id
     @Column
@@ -24,12 +26,11 @@ public class Course
     @EqualsAndHashCode.Include
     private int id;
 
-    @Column
-    private String name;
+    @ManyToOne
+    @JoinColumn(name = "STUDENT_ID")
+    private Student student;
 
-    @Column
-    private String description;
-
-    @ManyToMany(mappedBy = "courses")
-    private List<Teacher> teachers;
+    @ManyToOne
+    @JoinColumn(name = "COURSE_ID")
+    private Course course;
 }

@@ -39,7 +39,6 @@ public class Teacher
     )
     private List<Course> courses;
 
-    @OneToMany(mappedBy = "student")
-    private List<StudentCourseScore> scores;
-
+    @OneToMany(mappedBy = "teacher", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    private List<TeacherAssignation> assignations;
 }

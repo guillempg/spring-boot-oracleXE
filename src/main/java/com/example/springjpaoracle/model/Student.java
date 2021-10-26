@@ -31,15 +31,6 @@ public class Student
     @OneToMany(mappedBy = "relatedStudent")
     private List<Phone> phoneNumbers;
 
-    @ManyToMany(cascade = CascadeType.REMOVE)
-    @JoinTable(
-            name = "STUDENT_COURSE_REGISTER",
-            joinColumns = @JoinColumn(name = "STUDENT_ID", referencedColumnName = "ID"),
-            inverseJoinColumns = @JoinColumn(name = "COURSE_ID", referencedColumnName = "ID")
-    )
-    private List<Course> courses;
-
-    @OneToMany(mappedBy = "student")
-    private List<StudentCourseScore> scores;
-
+    @OneToMany(mappedBy = "student", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    private List<StudentRegistration> registrations;
 }

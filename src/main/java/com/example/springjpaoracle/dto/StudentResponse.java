@@ -18,8 +18,10 @@ public class StudentResponse
     {
         final StudentResponse studentResponse = new StudentResponse();
         studentResponse.setKeycloakId(student.getKeycloakId());
-        studentResponse.setCourses(student.getCourses().stream()
-                .map(CourseResponse::from)
+
+        studentResponse.setCourses(student.getRegistrations().stream()
+                .map(r -> r.getCourse())
+                .map(c -> new CourseResponse().setName(c.getName()))
                 .collect(Collectors.toList()));
 
         return studentResponse;

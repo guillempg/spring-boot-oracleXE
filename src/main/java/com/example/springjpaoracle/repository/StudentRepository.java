@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface StudentRepository extends JpaRepository<Student, Integer>
 {
-    @Query(value = "SELECT s FROM Course c INNER JOIN c.students as s WHERE c.name = ?1 ORDER BY s.keycloakId ASC")
+    @Query(value = "SELECT s FROM Student s INNER JOIN s.registrations as r INNER JOIN r.course as c WHERE c.name = ?1 ORDER BY s.keycloakId ASC")
     List<Student> findStudentsByCoursesNameIgnoreCase(String courseName);
 
     @Transactional
@@ -18,6 +18,6 @@ public interface StudentRepository extends JpaRepository<Student, Integer>
 
     Optional<Student> findByKeycloakId(String keycloakId);
 
-    @Query(value = "SELECT s from Student s WHERE s.keycloakId not in (select s2.keycloakId from Student s2 JOIN s2.courses c where upper(c.name)=upper(?1))")
+    @Query(value = "SELECT s from Student s WHERE s.keycloakId not in (select s2.keycloakId from Student s2 INNER JOIN s2.registrations r INNER JOIN r.course as c where upper(c.name)=upper(?1))")
     List<Student> findStudentsNotRegisteredToCourse(String courseName);
 }

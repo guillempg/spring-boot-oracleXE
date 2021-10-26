@@ -1,14 +1,12 @@
 package com.example.springjpaoracle;
 
+import com.example.springjpaoracle.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.repository.CrudRepository;
-
-import java.util.List;
 
 @Lazy
 @TestConfiguration
@@ -34,8 +32,21 @@ public class TestConfig
     }
 
     @Bean
-    public CompositeRepository uberRepository(List<CrudRepository<?, ?>> allRepositories)
+    public CompositeRepository uberRepository(TeacherAssignationRepository assignationRepository,
+                                              StudentCourseScoreRepository scoreRepository,
+                                              StudentRegistrationRepository registrationRepository,
+                                              StudentRepository studentRepository,
+                                              TeacherRepository teacherRepository,
+                                              CourseRepository courseRepository)
     {
-        return () -> allRepositories.forEach(CrudRepository::deleteAll);
+        return () ->
+        {
+            assignationRepository.deleteAll();
+            scoreRepository.deleteAll();
+            registrationRepository.deleteAll();
+            studentRepository.deleteAll();
+            teacherRepository.deleteAll();
+            courseRepository.deleteAll();
+        };
     }
 }

@@ -70,14 +70,28 @@ Feature: Student registration and deletion
   Scenario: Save student score
     Given the app is running
     And 'admin' user 'nickfury' logs into the application with password 'test1'
+    And 'nickfury' saves teacher 'hulk'
+    And 'nickfury' assigns teacher with details:
+      | name | coursesAssigned                   |
+      | hulk | Explosives 101, Rocket riding 101 |
+    And 'teacher' user 'hulk' logs into the application with password 'test1'
     And admin user 'nickfury' successfully register student with details:
-      | name            | courses                           | keycloakId  |
-      | Wiley E. Coyote | Explosives 101, Rocket riding 101 | 111-111-111 |
-    When we register student scores:
-      | studentSocialSecurityNumber | courseName        | score |
-      | 111-111-111                 | Explosives 101    | 4.99  |
-      | 111-111-111                 | Rocket riding 101 | 4.98  |
-    Then we see student scores:
-      | studentName     | courseName        | score |
-      | Wiley E. Coyote | Explosives 101    | 4.99  |
-      | Wiley E. Coyote | Rocket riding 101 | 4.98  |
+      | name      | courses                           |
+      | antman    | Explosives 101, Rocket riding 101 |
+      | spiderman | Rocket riding 101                 |
+    When 'hulk' registers student scores with hack 'nickfury':
+      | studentName | courseName        | score |
+      | antman      | Explosives 101    | 4.99  |
+      | antman      | Rocket riding 101 | 5.99  |
+      | spiderman   | Rocket riding 101 | 6.98  |
+    Then 'hulk' sees student scores for course 'Rocket riding 101':
+      | studentName | courseName        | score |
+      | antman      | Rocket riding 101 | 5.99  |
+      | spiderman   | Rocket riding 101 | 6.98  |
+    And 'antman' sees student scores:
+      | studentName | courseName        | score |
+      | antman      | Explosives 101    | 4.99  |
+      | antman      | Rocket riding 101 | 5.99  |
+    And 'spiderman' sees student scores:
+      | studentName | courseName        | score |
+      | spiderman   | Rocket riding 101 | 6.98  |
