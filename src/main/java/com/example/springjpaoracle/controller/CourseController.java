@@ -59,4 +59,24 @@ public class CourseController
         final Teacher teacher = teacherService.findOrSaveTeacher(saveTeacherRequest);
         return new ResponseEntity<>(TeacherResponse.from(teacher), HttpStatus.OK);
     }
+
+    @GetMapping(value = "/score/student/{studentKeycloakId}")
+    public ResponseEntity<List<StudentCourseScoreResponse>> viewStudentScores(@PathVariable String studentKeycloakId)
+    {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        final var scores = studentService.viewStudentScores(studentKeycloakId);
+        final List<StudentCourseScoreResponse> resp = StudentCourseScoreResponse.from(scores);
+        return new ResponseEntity<>(resp, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/score/{courseName}")
+    public ResponseEntity<List<StudentCourseScoreResponse>> viewStudentCourseScores(@PathVariable String courseName)
+    {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        final var scores = studentService.viewCourseScores(courseName);
+        final List<StudentCourseScoreResponse> resp = StudentCourseScoreResponse.from(scores);
+        return new ResponseEntity<>(resp, HttpStatus.OK);
+    }
 }

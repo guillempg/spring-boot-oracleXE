@@ -269,6 +269,79 @@ public class CucumberSteps
                 .containsExactlyInAnyOrderElementsOf(expectedStudentNames);
     }
 
+    @Then("teacher {string} sees student scores for course {string} with hack {string}:")
+    public void viewStudentScores(String teacherUsername, String courseName, String adminUsername, DataTable dataTable)
+    {
+        final String teacherKeycloakId = testCache.get().getKeycloakIdByUsername(adminUsername, teacherUsername);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(testCache.get().getToken(teacherUsername));
+
+        HttpEntity<SaveTeacherRequest> request = new HttpEntity<>(null, headers);
+        final String url = "/courses/score/" + courseName;
+        final ResponseEntity<List<StudentCourseScoreResponse>> responseEntity = applicationTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                request,
+                new ParameterizedTypeReference<>()
+                {
+                });
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        final StudentCourseScoreResponse[] expected = dataTable.asMaps().stream()
+                .map(map ->
+                {
+                    final String studentName = map.get("studentName");
+                    final String studentKeycloakId = testCache.get().getKeycloakIdByUsername(adminUsername, studentName);
+
+                    return new StudentCourseScoreResponse()
+                            .setScore(Double.valueOf(map.get("score")))
+                            .setStudentKeycloakId(studentKeycloakId)
+                            .setTeacherKeycloakId(teacherKeycloakId)
+                            .setCourseName(courseName);
+                })
+                .toArray(StudentCourseScoreResponse[]::new);
+
+        assertThat(responseEntity.getBody()).containsExactlyInAnyOrder(expected);
+    }
+
+    @Then("student {string} sees student scores with hack {string}:")
+    public void student_sees_student_scores_with_hack(String studentUsername, String adminUsername, io.cucumber.datatable.DataTable dataTable)
+    {
+        final String studentKeycloakId = testCache.get().getKeycloakIdByUsername(adminUsername, studentUsername);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(testCache.get().getToken(studentUsername));
+
+        HttpEntity<SaveTeacherRequest> request = new HttpEntity<>(null, headers);
+        final String url = "/courses/score/student/" + studentKeycloakId;
+        final ResponseEntity<List<StudentCourseScoreResponse>> responseEntity = applicationTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                request,
+                new ParameterizedTypeReference<>()
+                {
+                });
+
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        final StudentCourseScoreResponse[] expected = dataTable.asMaps().stream()
+                .map(map ->
+                {
+                    final String courseName = map.get("courseName");
+
+                    return new StudentCourseScoreResponse()
+                            .setScore(Double.valueOf(map.get("score")))
+                            .setStudentKeycloakId(studentKeycloakId)
+                            .setTeacherKeycloakId(studentKeycloakId)
+                            .setCourseName(courseName);
+                })
+                .toArray(StudentCourseScoreResponse[]::new);
+
+        assertThat(responseEntity.getBody())
+                .usingElementComparatorIgnoringFields("teacherKeycloakId")
+                .containsExactlyInAnyOrder(expected);
+    }
+
     @When("{string} saves teacher {string}")
     public void saveTeacher(final String adminUsername,
                             final String teacherName)
@@ -359,7 +432,7 @@ public class CucumberSteps
             final String adminUsername,
             final DataTable dataTable)
     {
-        return dataTable.asMaps().stream().skip(1)
+        return dataTable.asMaps().stream()
                 .map(e -> rowToScoreRequest(adminUsername, teacherUsername, e))
                 .collect(Collectors.toList());
     }

@@ -100,7 +100,7 @@ public class StudentService
         final Student student = studentRepository.findByKeycloakId(scoreRequest.getStudentKeycloakId())
                 .orElseThrow(() -> new StudentNotFoundException("Student with keycloakId:" + scoreRequest.getStudentKeycloakId() + " not found"));
         final Teacher teacher = teacherRepository.findByKeycloakId(scoreRequest.getTeacherKeycloakId())
-                .orElseThrow(() -> new TeacherNotFoundException("Teacer with keycloakId:" + scoreRequest.getTeacherKeycloakId() + " not found"));
+                .orElseThrow(() -> new TeacherNotFoundException("Teacher with keycloakId:" + scoreRequest.getTeacherKeycloakId() + " not found"));
         final Course course = courseRepository.findByNameIgnoreCase(scoreRequest.getCourseName())
                 .orElseThrow(() -> new CourseNotFoundException("Course with name " + scoreRequest.getCourseName() + " not found"));
         final StudentRegistration registration = studentRegistrationRepository.findByStudentIdAndCourseId(student.getId(), course.getId())
@@ -111,5 +111,15 @@ public class StudentService
         score.setTeacher(teacher);
 
         return scoreRepository.save(score);
+    }
+
+    public List<StudentCourseScore> viewStudentScores(final String studentKeycloakId)
+    {
+        return scoreRepository.viewStudentCourseScores(studentKeycloakId);
+    }
+
+    public List<StudentCourseScore> viewCourseScores(final String courseName)
+    {
+        return scoreRepository.viewCourseScores(courseName);
     }
 }

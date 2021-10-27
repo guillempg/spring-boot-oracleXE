@@ -66,7 +66,6 @@ Feature: Student registration and deletion
       | spiderman |
       | deadpool  |
 
-  @WorkInProgress
   Scenario: Save student score
     Given the app is running
     And 'admin' user 'nickfury' logs into the application with password 'test1'
@@ -84,14 +83,16 @@ Feature: Student registration and deletion
       | antman      | Explosives 101    | 4.99  |
       | antman      | Rocket riding 101 | 5.99  |
       | spiderman   | Rocket riding 101 | 6.98  |
-    Then 'hulk' sees student scores for course 'Rocket riding 101':
+    Then teacher 'hulk' sees student scores for course 'Rocket riding 101' with hack 'nickfury':
       | studentName | courseName        | score |
       | antman      | Rocket riding 101 | 5.99  |
       | spiderman   | Rocket riding 101 | 6.98  |
-    And 'antman' sees student scores:
+    And 'student' user 'antman' logs into the application with password 'test1'
+    And student 'antman' sees student scores with hack 'nickfury':
       | studentName | courseName        | score |
       | antman      | Explosives 101    | 4.99  |
       | antman      | Rocket riding 101 | 5.99  |
-    And 'spiderman' sees student scores:
+    And 'student' user 'spiderman' logs into the application with password 'test1'
+    And student 'spiderman' sees student scores with hack 'nickfury':
       | studentName | courseName        | score |
       | spiderman   | Rocket riding 101 | 6.98  |
