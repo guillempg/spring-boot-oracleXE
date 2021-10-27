@@ -1,4 +1,15 @@
+application:
+  keycloak_auth_root_uri: http://localhost:8088/auth/realms/springjpaoracle
+  keycloak_admin_root_uri: http://localhost:8088/auth/admin/realms/springjpaoracle/
+  client_id: springjpaoracle
+  client_secret: w8t76w34563ty7hegvsiety8934cv3456yu3o5c4
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8088/auth/realms/springjpaoracle
+          jwk-set-uri: http://localhost:8088/auth/realms/springjpaoracle/protocol/openid-connect/certs
   application:
     name: producer-service
   cloud:
@@ -25,7 +36,7 @@ spring:
         format_sql: false
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create-drop
     open-in-view: false
   datasource:
     url: "jdbc:oracle:thin:@localhost:${ORACLE_PORT:1521}:XE"

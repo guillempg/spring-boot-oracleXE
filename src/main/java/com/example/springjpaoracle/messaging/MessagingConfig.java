@@ -1,6 +1,6 @@
 package com.example.springjpaoracle.messaging;
 
-import com.example.springjpaoracle.model.Student;
+import com.example.springjpaoracle.dto.RegistrationRequest;
 import com.example.springjpaoracle.service.StudentService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public class MessagingConfig
 {
     @Bean
-    public Consumer<Message<Student>> studentRegistryInput(StudentService studentService)
+    public Consumer<Message<RegistrationRequest>> studentRegistryInput(StudentService studentService)
     {
         return message -> studentService.registerStudent(message.getPayload());
     }
@@ -20,6 +20,6 @@ public class MessagingConfig
     @Bean
     public Consumer<String> studentDeleteInput(StudentService studentService)
     {
-        return studentService::deleteBySocialSecurityNumber;
+        return studentService::deleteByKeycloakId;
     }
 }

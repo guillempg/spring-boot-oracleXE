@@ -11,17 +11,17 @@ import java.util.stream.Collectors;
 @Setter
 public class StudentResponse
 {
-    private String name;
     private List<CourseResponse> courses;
-    private String socialSecurityNumber;
+    private String keycloakId;
 
     public static StudentResponse from(Student student)
     {
         final StudentResponse studentResponse = new StudentResponse();
-        studentResponse.setName(student.getName());
-        studentResponse.setSocialSecurityNumber(student.getSocialSecurityNumber());
-        studentResponse.setCourses(student.getCourses().stream()
-                .map(CourseResponse::from)
+        studentResponse.setKeycloakId(student.getKeycloakId());
+
+        studentResponse.setCourses(student.getRegistrations().stream()
+                .map(r -> r.getCourse())
+                .map(c -> new CourseResponse().setName(c.getName()))
                 .collect(Collectors.toList()));
 
         return studentResponse;

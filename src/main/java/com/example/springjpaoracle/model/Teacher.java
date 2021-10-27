@@ -10,13 +10,13 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "STUDENT")
+@Table(name = "TEACHER")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class Student
+public class Teacher
 {
     @Id
     @Column
@@ -31,6 +31,14 @@ public class Student
     @OneToMany(mappedBy = "relatedStudent")
     private List<Phone> phoneNumbers;
 
-    @OneToMany(mappedBy = "student", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
-    private List<StudentRegistration> registrations;
+    @ManyToMany(cascade = CascadeType.REMOVE)
+    @JoinTable(
+            name = "TEACHER_COURSE_ASSIGNATIONS",
+            joinColumns = @JoinColumn(name = "TEACHER_ID", referencedColumnName = "ID"),
+            inverseJoinColumns = @JoinColumn(name = "COURSE_ID", referencedColumnName = "ID")
+    )
+    private List<Course> courses;
+
+    @OneToMany(mappedBy = "teacher", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
+    private List<TeacherAssignation> assignations;
 }

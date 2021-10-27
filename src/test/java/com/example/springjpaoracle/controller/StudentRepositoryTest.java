@@ -3,6 +3,7 @@ package com.example.springjpaoracle.controller;
 import com.example.springjpaoracle.TestContainersInitializer;
 import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Student;
+import com.example.springjpaoracle.model.StudentRegistration;
 import com.example.springjpaoracle.repository.CourseRepository;
 import com.example.springjpaoracle.repository.StudentRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -59,9 +60,14 @@ class StudentRepositoryTest
         courseRepository.save(paintPink);
         courseRepository.save(paintBlue);
 
+        final Student studentRegisteredToPink = new Student().setKeycloakId("111-111-111");
+        final Student studentRegisteredToBlue = new Student().setKeycloakId("222-222-222");
 
-        final Student studentRegisteredToPink = new Student().setName("Pink Panther").setCourses(Arrays.asList(paintPink)).setSocialSecurityNumber("111-111-111");
-        final Student studentRegisteredToBlue = new Student().setName("Mr. Egg").setCourses(Arrays.asList(paintBlue)).setSocialSecurityNumber("222-222-222");
+        final StudentRegistration pinkPantherEnrolled = new StudentRegistration().setStudent(studentRegisteredToPink).setCourse(paintPink);
+        final StudentRegistration mrEggEnrolled = new StudentRegistration().setStudent(studentRegisteredToBlue).setCourse(paintBlue);
+
+        studentRegisteredToPink.setRegistrations(Arrays.asList(pinkPantherEnrolled));
+        studentRegisteredToBlue.setRegistrations(Arrays.asList(mrEggEnrolled));
 
         studentRepository.save(studentRegisteredToPink);
         studentRepository.save(studentRegisteredToBlue);

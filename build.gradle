@@ -25,6 +25,7 @@ task cucumber() {
     doLast {
         javaexec {
             main = "io.cucumber.core.cli.Main"
+            jvmArgs = ['-Dspring.profiles.active=cucumber']
             classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
             args = ['--plugin', 'pretty', '--glue', 'com.example.springjpaoracle',
                     '--tags', System.getProperty('cucumber.tags', 'not @WorkInProgress'),
@@ -42,6 +43,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-amqp'
     implementation 'org.springframework.cloud:spring-cloud-stream'
     implementation 'org.springframework.cloud:spring-cloud-stream-binder-rabbit'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'com.auth0:java-jwt:3.18.2'
     runtimeOnly 'com.oracle.database.jdbc:ojdbc8'
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.22'
@@ -77,6 +81,7 @@ tasks.register("slowJUnit", Test) {
 }
 
 test {
+    //systemProperty 'spring.profiles.active', 'cucumber'
     useJUnitPlatform {
         excludeTags 'slow'
     }

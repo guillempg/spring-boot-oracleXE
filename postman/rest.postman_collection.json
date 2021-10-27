@@ -1,10 +1,130 @@
 {
 	"info": {
-		"_postman_id": "5ce8f0a7-4904-42bc-9337-056af2a618b6",
+		"_postman_id": "b2abeafd-3927-4a1c-9e04-81968e0163a9",
 		"name": "rest",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
+		{
+			"name": "Keycloak token request for read-only user employee1",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "springjpaoracle",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "5f226042-3229-4449-a990-51896866db2d",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "employee1",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "mypassword",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8081/auth/realms/springjpaoracle/protocol/openid-connect/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"auth",
+						"realms",
+						"springjpaoracle",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				},
+				"description": "This is a read only user for GET"
+			},
+			"response": []
+		},
+		{
+			"name": "Keycloak token request for read-only user employee2",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "grant_type",
+							"value": "password",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "springjpaoracle",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "5f226042-3229-4449-a990-51896866db2d",
+							"type": "text"
+						},
+						{
+							"key": "username",
+							"value": "employee1",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "mypassword",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8081/auth/realms/springjpaoracle/protocol/openid-connect/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"auth",
+						"realms",
+						"springjpaoracle",
+						"protocol",
+						"openid-connect",
+						"token"
+					]
+				},
+				"description": "This is admin user for POST and DELETE"
+			},
+			"response": []
+		},
 		{
 			"name": "List Enrolled Students",
 			"request": {
@@ -63,11 +183,21 @@
 		{
 			"name": "Enroll Wile E. Coyote",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlJDZG00Wi1xaExRTzhUXzBNMld3diJ9.eyJpc3MiOiJodHRwczovL2Rldi02ZWQ0ZDZxMi5ldS5hdXRoMC5jb20vIiwic3ViIjoicEFCREFpSXQ5aFZ6NlBhNndwb29LTnJPY1NmcVd4Z0xAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9ndWlsbGVtcGcvc3ByaW5nLWJvb3Qtb3JhY2xlWEUiLCJpYXQiOjE2MzQ2MzIzNzQsImV4cCI6MTYzNDcxODc3NCwiYXpwIjoicEFCREFpSXQ5aFZ6NlBhNndwb29LTnJPY1NmcVd4Z0wiLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMifQ.0Gveywr4GRs6oaLEa0ceecfUqS9QmrgjyXRmkK1BA2UxnpZzD9H9HVnYpZlHjWWhwd7rQv2V0lyWH71WvsvdfiTHMmZP_5WfEmBNvBlWRk6kUsygUXQ5T1YB6GpNnepa1xJdEJmcPJ8sXmjm3MBG9tsskAGtpndRL11qlOsNsLs-Za2pqufeG-MrjUxp1HRApfLFmO-reNxz7_7VqXfZdTqoMI097YXLBLaKGHvVRtltWjuyhyoBOC3HtrZeSX-WqIquPUMzmohAeS31bYkyJfNU92__7O-JBc7iIwbNSsln5AduDwHC_166mii7LuOgyM4NTB1-uO2MfWApUFRw-g",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{ \"name\": \"Wile E. Coyote\", \"courses\": [{\"name\":\"Explosives 101\", \"description\":\"pum\"}, {\"name\":\"Rocket Riding 101\", \"description\":\"yeha\"}], \"socialSecurityNumber\": \"111-111-111\"}",
+					"raw": "{ \"name\": \"Wile E. Coyote3\", \"courses\": [{\"name\":\"Explosives 101\", \"description\":\"pum\"}, {\"name\":\"Rocket Riding 101\", \"description\":\"yeha\"}], \"socialSecurityNumber\": \"411-111-111\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -92,16 +222,27 @@
 		{
 			"name": "List Student by Name",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlJDZG00Wi1xaExRTzhUXzBNMld3diJ9.eyJpc3MiOiJodHRwczovL2Rldi02ZWQ0ZDZxMi5ldS5hdXRoMC5jb20vIiwic3ViIjoicEFCREFpSXQ5aFZ6NlBhNndwb29LTnJPY1NmcVd4Z0xAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9ndWlsbGVtcGcvc3ByaW5nLWJvb3Qtb3JhY2xlWEUiLCJpYXQiOjE2MzQ2MzIzNzQsImV4cCI6MTYzNDcxODc3NCwiYXpwIjoicEFCREFpSXQ5aFZ6NlBhNndwb29LTnJPY1NmcVd4Z0wiLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMifQ.0Gveywr4GRs6oaLEa0ceecfUqS9QmrgjyXRmkK1BA2UxnpZzD9H9HVnYpZlHjWWhwd7rQv2V0lyWH71WvsvdfiTHMmZP_5WfEmBNvBlWRk6kUsygUXQ5T1YB6GpNnepa1xJdEJmcPJ8sXmjm3MBG9tsskAGtpndRL11qlOsNsLs-Za2pqufeG-MrjUxp1HRApfLFmO-reNxz7_7VqXfZdTqoMI097YXLBLaKGHvVRtltWjuyhyoBOC3HtrZeSX-WqIquPUMzmohAeS31bYkyJfNU92__7O-JBc7iIwbNSsln5AduDwHC_166mii7LuOgyM4NTB1-uO2MfWApUFRw-g",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/listStudentByName?name=Wile%20E.%20Coyote",
+					"raw": "http://localhost:8080/students/listStudentByName?name=Wile%20E.%20Coyote",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"students",
 						"listStudentByName"
 					],
 					"query": [
@@ -138,6 +279,28 @@
 					"path": [
 						"students",
 						"score"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List all courses",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/courses",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"courses"
 					]
 				}
 			},

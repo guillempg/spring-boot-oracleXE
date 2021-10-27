@@ -3,12 +3,12 @@ package com.example.springjpaoracle.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
-public class ScoreRequest
+public class RegistrationRequest
 {
-    private double score;
-    private String courseName;
     private String studentKeycloakId;
-    private String teacherKeycloakId;
+    private List<String> courseNames;
 }

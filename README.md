@@ -95,7 +95,7 @@ DATABASE IS READY TO USE!
   use [Oracle SQL Developer](https://www.oracle.com/database/technologies/appdev/sqldeveloper-landing.html)
   or using your IDE (IntelliJ Idea Database tab allows you to configure DataSource for many databases).
 
-Use the following values to access Oracle as SYSTEM user:
+Use the following values to configure a Datasource to access Oracle as SYSTEM user:
 
 ```
 Host: localhost
@@ -173,3 +173,77 @@ and import one dashboard for a Spring boot application whose id is `10280`
 You can also visit Prometheus URL `http://localhost:9090`. Several endpoints are available, for instance
 `http://localhost:9090/metrics` shows all the metrics scraped by Prometheus (it should match those listed in the
 application URL `http://localhost:8080/actuator/prometheus`).
+
+## Keycloak configuration
+
+Authentication for this project is done via [Keycloak](https://www.keycloak.org/). We have added the realm
+configuration `keycloak/initialize_keycloak.sh` but this configuration unfortunately does not include any users,
+therefore we will need to create users and assign them the different roles.
+
+Keycloak docker container by default comes with an in-memory database, but we will use our oracleXE database to persist
+all the keycloak configuration tables and have them readily available.
+
+First we need to create a docker network:
+
+`docker network create keycloak-network`
+
+Then, from root folder of the project, we start an oracle container pointing to the volume inside
+folder `oracle18.4.0XE` of this project:
+
+```bash
+docker run -d --name ora18xeBDD --net keycloak-network \
+-p 1521:1521 \
+-p 5500:5500 \
+-v $(pwd)/oracle18.4.0XE:/opt/oracle/oradata \
+oracle/database:18.4.0-xe
+```
+
+In order to not mix our application and keycloak tables, we create a new Oracle keycloak user using a SYSTEM datasource:
+
+```sql
+alter
+session set "_ORACLE_SCRIPT"=true;
+drop
+user KEYCLOAK cascade;
+create
+user keycloak identified by keycloak
+    quota unlimited on users;
+grant connect, resource to keycloak;
+```
+
+you can then create a keycloak user DataSource in the same way you did for users `SYSTEM` and `testuser` before.
+
+In order to configure Keycloak to use our OracleXE DB, we first need
+to [download Oracle JDBC driver](https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html), version 18c,
+and copy it inside project folder `keycloak`. Make sure the file is named `ojdbc8.jar`.
+
+Next, we start a keycloak container in the same docker network (keycloak-network). It will create all keycloak tables
+and initialize a `springjpaoracle` realm within our Oracle XE DB:
+
+```bash
+docker run -d -p 8088:8080 --name keycloak --net keycloak-network \
+-e JAVA_OPTS_APPEND=-Dkeycloak.profile.feature.upload_scripts=enabled \
+-e KEYCLOAK_USER=admin \
+-e KEYCLOAK_PASSWORD=admin \
+-e KEYCLOAK_IMPORT=/tmp/example-realm.json \
+-e DB_VENDOR=oracle \
+-e DB_ADDR=ora18xeBDD \
+-e DB_PORT=1521 \
+-e DB_DATABASE=XE \
+-e DB_USER=keycloak \
+-e DB_PASSWORD=keycloak \
+-v $(pwd)/keycloak/realm-export.json:/tmp/example-realm.json \
+-v $(pwd)/keycloak/ojdbc8.jar:/opt/jboss/keycloak/modules/system/layers/base/com/oracle/jdbc/main/driver/ojdbc.jar \
+jboss/keycloak
+```
+
+Have a look at your local Keycloak visiting `http://localhost:8088` with username `admin` and password `admin` as
+configured above.
+
+At this point, we still need to create and configure some roles, users and their passwords inside keycloak. We will do
+so by executing the bash script in folder `keycloak/initialize_keycloak.sh`. This script uses Keycloak REST endpoints,
+have a look at [Keycloak REST API](https://www.keycloak.org/docs-api/5.0/rest-api/index.html). There is a Postman
+collection of queries for the different endpoints [here](https://documenter.getpostman.com/view/7294517/SzmfZHnd).
+
+This script creates 4 users: `nickfury` (with `admin` role), `hulk` (with `teacher`role), and `spidermand` and `antman`
+both with `student` role. All four users have the same `test1` password.

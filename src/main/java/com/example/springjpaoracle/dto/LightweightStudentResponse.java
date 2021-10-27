@@ -8,14 +8,12 @@ import lombok.Setter;
 @Setter
 public class LightweightStudentResponse
 {
-    private String name;
-    private String socialSecurityNumber;
+    private String keycloakId;
 
     public static LightweightStudentResponse from(Student student)
     {
         final LightweightStudentResponse studentResponse = new LightweightStudentResponse();
-        studentResponse.setName(student.getName());
-        studentResponse.setSocialSecurityNumber(student.getSocialSecurityNumber());
+        studentResponse.setKeycloakId(student.getKeycloakId());
         return studentResponse;
     }
 }

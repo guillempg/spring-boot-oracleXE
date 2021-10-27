@@ -27,11 +27,11 @@ public class StudentCourseScore
     private Double score;
 
     @ManyToOne
-    @JoinColumn(name = "STUDENT_ID")
-    private Student student;
+    @JoinColumn(name = "REGISTRATION_ID")
+    private StudentRegistration registration;
 
     @ManyToOne
-    @JoinColumn(name = "COURSE_ID")
-    private Course course;
+    @JoinColumn(name = "TEACHER_ID")
+    private Teacher teacher;
 
 }
