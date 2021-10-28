@@ -1,5 +1,6 @@
-package com.example.springjpaoracle;
+package com.example.springjpaoracle.config;
 
+import com.example.springjpaoracle.RabbitMQSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
