@@ -1,6 +1,6 @@
 package com.example.springjpaoracle.controller;
 
-import com.example.springjpaoracle.TestContainersInitializer;
+import com.example.springjpaoracle.config.TestContainersInitializer;
 import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Student;
 import com.example.springjpaoracle.model.StudentRegistration;

@@ -14,7 +14,6 @@ import java.util.List;
 @Getter
 @Setter
 @EqualsAndHashCode
-@ToString
 @Accessors(chain = true)
 public class StudentCourseScoreResponse
 {

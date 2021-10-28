@@ -1,14 +1,19 @@
 package com.example.springjpaoracle.dto;
 
 import com.example.springjpaoracle.model.Student;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter
 @Setter
+@EqualsAndHashCode
+@Accessors(chain = true)
 public class StudentResponse
 {
     private List<CourseResponse> courses;

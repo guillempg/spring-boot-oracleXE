@@ -15,13 +15,17 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter
 {
-    @Override
-    public void configure(HttpSecurity http) throws Exception
-    {
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter(){
         final JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         final CustomJwtConverter converter = new CustomJwtConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(converter);
+        return jwtAuthenticationConverter;
+    }
 
+    @Override
+    public void configure(HttpSecurity http) throws Exception
+    {
         http.authorizeRequests()
                 .mvcMatchers(HttpMethod.GET, "/courses").permitAll()
                 .mvcMatchers(HttpMethod.POST, "/courses/score").hasAuthority("teacher")
@@ -33,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
                 .mvcMatchers(HttpMethod.DELETE, "/students/**").hasAuthority("admin")
                 .and().cors()
                 .and().oauth2ResourceServer().jwt()
-                .jwtAuthenticationConverter(jwtAuthenticationConverter);
+                .jwtAuthenticationConverter(jwtAuthenticationConverter());
     }
 
     @Bean
