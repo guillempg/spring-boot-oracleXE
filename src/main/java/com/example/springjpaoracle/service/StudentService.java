@@ -69,11 +69,6 @@ public class StudentService
         }
     }
 
-    public List<Course> findAllCourses()
-    {
-        return courseRepository.findAll();
-    }
-
     public List<Student> findStudentsByCoursesNameIgnoreCase(final String courseName)
     {
         return studentRepository.findStudentsByCoursesNameIgnoreCase(courseName);

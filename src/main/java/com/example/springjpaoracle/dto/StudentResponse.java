@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @EqualsAndHashCode
-@ToString
 @Accessors(chain = true)
 public class StudentResponse
 {

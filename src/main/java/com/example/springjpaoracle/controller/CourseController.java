@@ -27,15 +27,6 @@ public class CourseController
         this.teacherService = teacherService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<CourseResponse>> listCourses()
-    {
-        final List<CourseResponse> coursesResponse = studentService.findAllCourses().stream()
-                .map(CourseResponse::from)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(coursesResponse, HttpStatus.OK);
-    }
-
     @PostMapping(value = "/score")
     public ResponseEntity<StudentCourseScoreResponse> score(@RequestBody ScoreRequest score)
     {
