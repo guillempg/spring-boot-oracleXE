@@ -247,3 +247,18 @@ collection of queries for the different endpoints [here](https://documenter.getp
 
 This script creates 4 users: `nickfury` (with `admin` role), `hulk` (with `teacher`role), and `spidermand` and `antman`
 both with `student` role. All four users have the same `test1` password.
+
+## Sonarqube
+
+In order to analyze this project code using Sonarqube, run Sonarqube Docker container from the project's root folder
+like this:
+
+```bash
+docker run -d --name sonarqube \
+    -p 9000:9000 \
+    -v $(pwd)/sonarqube:/opt/sonarqube/data \
+    sonarqube:8.9.3-community
+```
+
+and visit `localhost:9000` with your browser. Log in with username `admin` and password `admin`, and you will be
+prompted to change the password. Then you will be prompted to 
