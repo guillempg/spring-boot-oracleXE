@@ -45,3 +45,9 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  sonarqube:
+    image: "sonarqube:8.9.3-community"
+    ports:
+      - 9000:9000
+    volumes:
+      - ./sonarqube:/opt/sonarqube/data
