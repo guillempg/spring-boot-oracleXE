@@ -298,3 +298,34 @@ password `sonarqube`:
 -Dsonar.binaries=build/classes \
 sonarqube
 ```
+
+## Jenkins
+
+We followed [these instructions](https://www.jenkins.io/doc/book/installing/docker/):
+
+create a docker network:
+
+```bash
+docker network create jenkins
+```
+
+we also need to run a "Docker in docker" image:
+
+```bash
+docker run \
+  --name jenkins-docker \
+  --rm \
+  --detach \
+  --privileged \
+  --network jenkins \
+  --network-alias docker \
+  --env DOCKER_TLS_CERTDIR=/certs \
+  --volume jenkins-docker-certs:/certs/client \
+  --volume jenkins-data:/var/jenkins_home \
+  --publish 2376:2376 \
+  docker:dind \
+  --storage-driver overlay2
+```
+
+you don't need to create a Dockerfile, we already added it inside jenkins folder in the root of the project, but you
+have to build an image, change directory inside `jenkins` folder and run `docker build -t myjenkins-blueocean:1.1 .`

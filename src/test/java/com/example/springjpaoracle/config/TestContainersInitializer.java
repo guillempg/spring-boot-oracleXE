@@ -21,7 +21,7 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
     private final RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:3-management")
             .withExposedPorts(5672, 15672);
 
-    private final OracleContainer oracle = new OracleContainer("oracle/database:18.4.0-xe")
+    private final OracleContainer oracle = new OracleContainer(System.getProperty("ORACLE_XE_IMAGE", "oracle/database:18.4.0-xe"))
             .withNetwork(network)
             .withNetworkAliases("oracle")
             .withFileSystemBind("oracle18.4.0XE", "/opt/oracle/oradata", BindMode.READ_WRITE)
