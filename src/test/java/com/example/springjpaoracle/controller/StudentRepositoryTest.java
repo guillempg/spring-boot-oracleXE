@@ -19,7 +19,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -75,5 +77,18 @@ class StudentRepositoryTest
         final List<Student> unregisteredToPaintBlue = studentRepository.findStudentsNotRegisteredToCourse("Paint Blue");
         assertTrue(unregisteredToPaintBlue.contains(studentRegisteredToPink));
         assertFalse(unregisteredToPaintBlue.contains(studentRegisteredToBlue));
+    }
+
+    @Test
+    void createCourseIfNotFound()
+    {
+        final Course course = new Course().setName("a course");
+        courseRepository.save(course);
+
+        final Optional<Course> existingCourse = courseRepository.findByNameIgnoreCase("a course");
+        assertThat(existingCourse).isNotEmpty();
+        final Optional<Course> nonExistingCourse = courseRepository.findByNameIgnoreCase("a non previously existing course");
+        assertThat(nonExistingCourse).isEmpty();
+
     }
 }
