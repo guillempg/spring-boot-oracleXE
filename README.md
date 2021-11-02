@@ -274,6 +274,19 @@ different for you, also the `-Dsonar.projectKey=` if you didn't use the same one
   -Dsonar.login=49e208586ac4e1e9ae80674bcba0b7f095516930
 ```
 
+Edit `build.gradle` file to so that the sonarqube properties have the appropiate values:
+
+```groovy
+sonarqube {
+    properties {
+        property "sonar.sources", "src/test/resources/features,src/main/java"
+        property 'sonar.host.url', 'http://localhost:9000'
+        property 'sonar.projectKey', 'spring-jpa-oracle'
+        property 'sonar.login', '49e208586ac4e1e9ae80674bcba0b7f095516930'
+    }
+}
+```
+
 You can can start a Sonarqube analysis with the following command, which assumes that username `admin` has
 password `sonarqube`:
 
