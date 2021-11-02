@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class StudentService
 {
     public static final String REGISTER_STUDENT_REQUEST_COUNT = "registerStudentRequestCount";
+    public static final String NOT_FOUND = " not found";
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
     private final TeacherRepository teacherRepository;
@@ -60,7 +61,7 @@ public class StudentService
         if (phones != null)
         {
             return phones.stream()
-                    .map((phone) -> phoneRepository.findByPhoneNumberIgnoreCase(phone.getPhoneNumber())
+                    .map(phone -> phoneRepository.findByPhoneNumberIgnoreCase(phone.getPhoneNumber())
                             .orElseGet(() -> phoneRepository.save(phone)))
                     .collect(Collectors.toList());
         } else
@@ -93,11 +94,11 @@ public class StudentService
     {
         final StudentCourseScore score = new StudentCourseScore();
         final Student student = studentRepository.findByKeycloakId(scoreRequest.getStudentKeycloakId())
-                .orElseThrow(() -> new StudentNotFoundException("Student with keycloakId:" + scoreRequest.getStudentKeycloakId() + " not found"));
+                .orElseThrow(() -> new StudentNotFoundException("Student with keycloakId:" + scoreRequest.getStudentKeycloakId() + NOT_FOUND));
         final Teacher teacher = teacherRepository.findByKeycloakId(scoreRequest.getTeacherKeycloakId())
-                .orElseThrow(() -> new TeacherNotFoundException("Teacher with keycloakId:" + scoreRequest.getTeacherKeycloakId() + " not found"));
+                .orElseThrow(() -> new TeacherNotFoundException("Teacher with keycloakId:" + scoreRequest.getTeacherKeycloakId() + NOT_FOUND));
         final Course course = courseRepository.findByNameIgnoreCase(scoreRequest.getCourseName())
-                .orElseThrow(() -> new CourseNotFoundException("Course with name " + scoreRequest.getCourseName() + " not found"));
+                .orElseThrow(() -> new CourseNotFoundException("Course with name " + scoreRequest.getCourseName() + NOT_FOUND));
         final StudentRegistration registration = studentRegistrationRepository.findByStudentIdAndCourseId(student.getId(), course.getId())
                 .orElseThrow(() -> new StudentRegistrationNotFoundException(student.getId(), course.getId()));
 
