@@ -5,7 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.testcontainers.containers.*;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.containers.Network;
+import org.testcontainers.containers.OracleContainer;
+import org.testcontainers.containers.RabbitMQContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
@@ -27,7 +30,7 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
     private final OracleContainer oracle = new OracleContainer(oracleImage)
             .withNetwork(network)
             .withNetworkAliases("oracle")
-            .withFileSystemBind("oracle18.4.0XE", "/opt/oracle/oradata", BindMode.READ_WRITE)
+            //.withFileSystemBind("oracle18.4.0XE", "/opt/oracle/oradata", BindMode.READ_WRITE)
             .withUsername("testuser")
             .withPassword("testpassword")
             .withExposedPorts(1521, 5500);
