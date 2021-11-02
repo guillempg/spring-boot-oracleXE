@@ -12,7 +12,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/courses")
@@ -54,8 +53,6 @@ public class CourseController
     @GetMapping(value = "/score/student/{studentKeycloakId}")
     public ResponseEntity<List<StudentCourseScoreResponse>> viewStudentScores(@PathVariable String studentKeycloakId)
     {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         final var scores = studentService.viewStudentScores(studentKeycloakId);
         final List<StudentCourseScoreResponse> resp = StudentCourseScoreResponse.from(scores);
         return new ResponseEntity<>(resp, HttpStatus.OK);
@@ -64,8 +61,6 @@ public class CourseController
     @GetMapping(value = "/score/{courseName}")
     public ResponseEntity<List<StudentCourseScoreResponse>> viewStudentCourseScores(@PathVariable String courseName)
     {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
         final var scores = studentService.viewCourseScores(courseName);
         final List<StudentCourseScoreResponse> resp = StudentCourseScoreResponse.from(scores);
         return new ResponseEntity<>(resp, HttpStatus.OK);

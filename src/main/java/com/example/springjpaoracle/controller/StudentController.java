@@ -65,7 +65,7 @@ public class StudentController
     {
         List<Student> studentsNotRegisteredToCourse = studentService.findStudentsNotRegisteredToCourse(courseName);
         final List<LightweightStudentResponse> lightweightStudentResponse = studentsNotRegisteredToCourse.stream()
-                .map(s -> LightweightStudentResponse.from(s))
+                .map(LightweightStudentResponse::from)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(lightweightStudentResponse, HttpStatus.OK);
     }

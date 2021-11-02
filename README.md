@@ -247,3 +247,41 @@ collection of queries for the different endpoints [here](https://documenter.getp
 
 This script creates 4 users: `nickfury` (with `admin` role), `hulk` (with `teacher`role), and `spidermand` and `antman`
 both with `student` role. All four users have the same `test1` password.
+
+## Sonarqube
+
+In order to analyze this project code using Sonarqube, run Sonarqube Docker container from the project's root folder
+like this:
+
+```bash
+docker run -d --name sonarqube \
+    -p 9000:9000 \
+    -v $(pwd)/sonarqube:/opt/sonarqube/data \
+    sonarqube:8.9.3-community
+```
+
+and visit `localhost:9000` with your browser. Log in with username `admin` and password `admin`, and you will be
+prompted to change the password. Then **add a project** manually and give it a project key, for
+instance `spring-jpa-oracle`. Then you will have to generate a token (we named it `springjpatoken`)
+and run an analysis on the project (select `Gradle`). We already added the sonarqube plugin to build.gradle file.
+Sonarqube will give you a command like the following command one to run an analysis (the `-Dsonar.login=` value will be
+different for you, also the `-Dsonar.projectKey=` if you didn't use the same one):
+
+```bash
+./gradlew sonarqube \
+  -Dsonar.projectKey=spring-jpa-oracle \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=49e208586ac4e1e9ae80674bcba0b7f095516930
+```
+
+You can can start a Sonarqube analysis with the following command, which assumes that username `admin` has
+password `sonarqube`:
+
+```bash
+./gradlew -Dsonar.host.url=http://localhost:9000 \
+-Dsonar.login=admin \
+-Dsonar.password=sonarqube \
+-Dsonar.projectKey=spring-jpa-oracle \
+-Dsonar.binaries=build/classes \
+sonarqube
+```

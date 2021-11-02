@@ -37,10 +37,8 @@ public class TeacherService
                 courseRepository,
                 Arrays.asList(assignTeacherRequest.getCourseName())).get(0);
 
-        final TeacherAssignation teacherAssignation = teacherAssignationRepository.findByTeacherIdAndCourseName(teacher.getId(), course.getName())
+        return teacherAssignationRepository.findByTeacherIdAndCourseName(teacher.getId(), course.getName())
                 .orElseGet(() -> teacherAssignationRepository.save(new TeacherAssignation().setTeacher(teacher).setCourse(course)));
-
-        return teacherAssignation;
     }
 
     public Teacher findOrSaveTeacher(final SaveTeacherRequest saveTeacherRequest)

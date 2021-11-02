@@ -40,6 +40,6 @@ out/
 oracle18.4.0XE/
 grafana/**
 keycloak/ojdbc8.jar
-
+sonarqube/**
 
 .DS_Store

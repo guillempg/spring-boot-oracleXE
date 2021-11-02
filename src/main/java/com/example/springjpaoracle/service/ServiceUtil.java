@@ -6,12 +6,16 @@ import com.example.springjpaoracle.repository.CourseRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ServiceUtil
+public final class ServiceUtil
 {
+    private ServiceUtil()
+    {
+    }
+
     public static List<Course> findOrCreateCourses(final CourseRepository courseRepository, final List<String> courseNames)
     {
         return courseNames.stream()
-                .map((courseName) -> courseRepository.findByNameIgnoreCase(courseName)
+                .map(courseName -> courseRepository.findByNameIgnoreCase(courseName)
                         .orElseGet(() -> courseRepository.save(new Course().setName(courseName))))
                 .collect(Collectors.toList());
     }

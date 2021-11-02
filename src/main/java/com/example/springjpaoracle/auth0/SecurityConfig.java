@@ -15,8 +15,14 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter
 {
+
+    public static final String TEACHER = "teacher";
+    public static final String STUDENT = "student";
+    public static final String ADMIN = "admin";
+
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter(){
+    public JwtAuthenticationConverter jwtAuthenticationConverter()
+    {
         final JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         final CustomJwtConverter converter = new CustomJwtConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(converter);
@@ -28,13 +34,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
     {
         http.authorizeRequests()
                 .mvcMatchers(HttpMethod.GET, "/courses").permitAll()
-                .mvcMatchers(HttpMethod.POST, "/courses/score").hasAuthority("teacher")
-                .mvcMatchers(HttpMethod.GET, "/courses/score/student/**").hasAnyAuthority("student", "teacher")
-                .mvcMatchers(HttpMethod.GET, "/courses/score/**").hasAuthority("teacher")
-                .mvcMatchers(HttpMethod.POST, "/courses/assignteacher").hasAuthority("admin")
-                .mvcMatchers(HttpMethod.GET, "/students/**").hasAnyAuthority("admin", "user")
-                .mvcMatchers(HttpMethod.POST, "/students/**").hasAuthority("admin")
-                .mvcMatchers(HttpMethod.DELETE, "/students/**").hasAuthority("admin")
+                .mvcMatchers(HttpMethod.POST, "/courses/score").hasAuthority(TEACHER)
+                .mvcMatchers(HttpMethod.GET, "/courses/score/student/**").hasAnyAuthority(STUDENT, TEACHER)
+                .mvcMatchers(HttpMethod.GET, "/courses/score/**").hasAuthority(TEACHER)
+                .mvcMatchers(HttpMethod.POST, "/courses/assignteacher").hasAuthority(ADMIN)
+                .mvcMatchers(HttpMethod.GET, "/students/**").hasAnyAuthority(ADMIN, "user")
+                .mvcMatchers(HttpMethod.POST, "/students/**").hasAuthority(ADMIN)
+                .mvcMatchers(HttpMethod.DELETE, "/students/**").hasAuthority(ADMIN)
                 .and().cors()
                 .and().oauth2ResourceServer().jwt()
                 .jwtAuthenticationConverter(jwtAuthenticationConverter());
