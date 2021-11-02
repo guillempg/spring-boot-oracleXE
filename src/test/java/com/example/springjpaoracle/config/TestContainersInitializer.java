@@ -26,7 +26,6 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
 
     private final OracleContainer oracle = new OracleContainer(oracleImage)
             .withNetwork(network)
-            .withEnv("ORACLE_PASSWORD", "password")
             .withNetworkAliases("oracle")
             .withFileSystemBind("oracle18.4.0XE", "/opt/oracle/oradata", BindMode.READ_WRITE)
             .withUsername("testuser")
