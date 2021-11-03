@@ -243,7 +243,12 @@ Have a look at your local Keycloak visiting `http://localhost:8088` with usernam
 configured above.
 
 At this point, we still need to create and configure some roles, users and their passwords inside keycloak. We will do
-so by executing the bash script in folder `keycloak/initialize_keycloak.sh`. This script uses Keycloak REST endpoints,
+so by executing the bash script in folder `keycloak/initialize_keycloak.sh`
+
+> If you get the error "jq: command not found" while running the script, download it from
+> https://stedolan.github.io/jq/download/
+
+This script uses Keycloak REST endpoints,
 have a look at [Keycloak REST API](https://www.keycloak.org/docs-api/5.0/rest-api/index.html). There is a Postman
 collection of queries for the different endpoints [here](https://documenter.getpostman.com/view/7294517/SzmfZHnd).
 
@@ -259,6 +264,7 @@ like this:
 docker run -d --name sonarqube \
     -p 9000:9000 \
     -v $(pwd)/sonarqube:/opt/sonarqube/data \
+    -Dsonar.ce.javaOpts="-Xms750m -Xmx750m" \
     sonarqube:8.9.3-community
 ```
 
