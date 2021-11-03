@@ -15,9 +15,6 @@ Some of these endpoints can also be accessed via messaging, and are tested
 in `student_registration_and_deletion.feature`
 using RabbitMQ testcontainers or Spring Integration API.
 
-The following schema summarizes the relationships between `@Entity` classes in this
-project ![image](src/main/resources/images/schema.png)
-
 ## Pre-requisites (if you don't have access to an Oracle DB)
 
 We will be using Oracle XE in a Docker container, which you can install through the following steps:
@@ -57,7 +54,7 @@ the volume in your filesystem with this command `docker volume inspect oracle18.
 ]
 ```
 
-Next, stop the docker container with `docker stop ora18xe` and copy that the Mountpoint folder and all its contents to a
+Next, stop the docker container with `docker stop ora18xe` and copy the Mountpoint folder and all its contents to a
 folder in the project's root named `oracle18.4.0XE`, executing the following command within the project's root folder:
 `sudo cp -Rp /var/lib/docker/volumes/oracle18.4.0XE/_data oracle18.4.0XE` (the `-p` will preserve the permissions and
 ownership of the files). Now start again the docker container with `docker start ora18xe`.
@@ -75,9 +72,7 @@ This will take several minutes (~10 in my laptop) before the DB is ready, meanwh
 container.
 
 * Inspect the logs of the docker container and note down the password for SYSTEM user, also the pluggable database
-  value (ie. `ora18xe/XEPDB1`). Every time you run the docker container it will create and assign a different password
-  to SYS and SYSTEM users, so the DataSource pointing to it might need need to be updated if is using the SYS or SYSTEM
-  user.
+  value (ie. `ora18xe/XEPDB1`).
 
 `docker logs ora18xe -f`
 
@@ -148,9 +143,16 @@ ORDER BY table_name;
 
 ## Data model
 
+This application is a student registration sample app, where students can register to courses, teachers are assigned to
+courses and can score students. The following schema summarizes the relationships between `@Entity` classes in this
+project ![image](src/main/resources/images/schema.png)
+
 ## RabbitMQ admin console
 
-http://localhost:15672
+Inside `docker-compose.yml` file there is a rabbitmq3 service that starts a docker container with a rabbitMQ server
+exposing port 15672, reachable with a browser by visiting:
+
+`http://localhost:15672`
 
 ## Metrics with Prometheus and Grafana
 
