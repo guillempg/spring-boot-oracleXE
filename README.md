@@ -114,7 +114,7 @@ DATABASE IS READY TO USE!
 
 Make sure your project now shows the folder `oracle18.4.0XE` as the following:
 
-![img.png](src/main/resources/images/img.png)
+![oracle_folder.png](src/main/resources/images/oracle_folder.png)
 
 ## Configure DataSource
 
