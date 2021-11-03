@@ -37,6 +37,8 @@ We will be using Oracle XE in a Docker container, which you can install through 
 
 `docker volume create oracle18.4.0XE`
 
+
+### Backup volume to filesystem (Linux)
 We will link this volume (a folder in your filesystem) to a specific folder within the container. You can check where is
 the volume in your filesystem with this command `docker volume inspect oracle18.4.0XE`, you will see something like:
 
@@ -83,6 +85,36 @@ The following message in the logs indicates the database is ready:
 DATABASE IS READY TO USE!
 #########################
 ```
+
+### Backup volume to filesystem (Mac)
+
+We are going to run the container pointing the volume to our local filesystem so that when the database starts up, all 
+the files are copied to our project. This enables us to run the container later pointing the volume to the same folder,
+hence speeding up the startup times.
+
+Run the following command from the project's root:
+
+`docker run -i -t -d --hostname ora18xe --name ora18xe -p 1521:1521 -v $(pwd)/oracle18.4.0XE:/opt/oracle/oradata oracle/database:18.4.0-xe`
+
+This will take several minutes (~10 in my laptop) before the DB is ready, meanwhile you can check the logs of the
+container.
+
+* Inspect the logs of the docker container and note down the password for SYSTEM user, also the pluggable database
+  value (ie. `ora18xe/XEPDB1`).
+
+`docker logs ora18xe -f`
+
+The following message in the logs indicates the database is ready:
+
+```
+#########################
+DATABASE IS READY TO USE!
+#########################
+```
+
+Make sure your project now shows the folder `oracle18.4.0XE` as the following:
+
+![img.png](src/main/resources/images/img.png)
 
 ## Configure DataSource
 
