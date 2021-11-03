@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.Network;
-import org.testcontainers.containers.OracleContainer;
-import org.testcontainers.containers.RabbitMQContainer;
+import org.testcontainers.containers.*;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
@@ -36,9 +33,9 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
             .withEnv("ORACLE_DATABASE", "testuser")
             .withEnv("APP_USER", "testuser")
             .withEnv("APP_PASSWORD", "testpassword")
-            //.withFileSystemBind("oracle18.4.0XE", "/opt/oracle/oradata", BindMode.READ_WRITE)
-            //.withUsername("testuser")
-            //.withPassword("testpassword")
+            .withFileSystemBind("oracle18.4.0XE", "/opt/oracle/oradata", BindMode.READ_WRITE)
+            .withUsername("testuser")
+            .withPassword("testpassword")
             .withExposedPorts(1521, 5500);
 
     private final GenericContainer<?> keycloak = new GenericContainer<>(DockerImageName.parse("jboss/keycloak:15.0.2"))
