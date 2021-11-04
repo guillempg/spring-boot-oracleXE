@@ -37,8 +37,8 @@ We will be using Oracle XE in a Docker container, which you can install through 
 
 `docker volume create oracle18.4.0XE`
 
-
 ### Backup volume to filesystem (Linux)
+
 We will link this volume (a folder in your filesystem) to a specific folder within the container. You can check where is
 the volume in your filesystem with this command `docker volume inspect oracle18.4.0XE`, you will see something like:
 
@@ -88,7 +88,7 @@ DATABASE IS READY TO USE!
 
 ### Backup volume to filesystem (Mac)
 
-We are going to run the container pointing the volume to our local filesystem so that when the database starts up, all 
+We are going to run the container pointing the volume to our local filesystem so that when the database starts up, all
 the files are copied to our project. This enables us to run the container later pointing the volume to the same folder,
 hence speeding up the startup times.
 
@@ -280,9 +280,9 @@ so by executing the bash script in folder `keycloak/initialize_keycloak.sh`
 > If you get the error "jq: command not found" while running the script, download it from
 > https://stedolan.github.io/jq/download/
 
-This script uses Keycloak REST endpoints,
-have a look at [Keycloak REST API](https://www.keycloak.org/docs-api/5.0/rest-api/index.html). There is a Postman
-collection of queries for the different endpoints [here](https://documenter.getpostman.com/view/7294517/SzmfZHnd).
+This script uses Keycloak REST endpoints, have a look
+at [Keycloak REST API](https://www.keycloak.org/docs-api/5.0/rest-api/index.html). There is a Postman collection of
+queries for the different endpoints [here](https://documenter.getpostman.com/view/7294517/SzmfZHnd).
 
 This script creates 4 users: `nickfury` (with `admin` role), `hulk` (with `teacher`role), and `spidermand` and `antman`
 both with `student` role. All four users have the same `test1` password.
@@ -369,3 +369,27 @@ docker run \
 
 you don't need to create a Dockerfile, we already added it inside jenkins folder in the root of the project, but you
 have to build an image, change directory inside `jenkins` folder and run `docker build -t myjenkins-blueocean:1.1 .`
+
+And finally run your myjenkins-blueocean:1.1 image with:
+
+```bash
+docker run --name jenkins-blueocean \
+  --rm \
+  --detach \
+  --network jenkins \
+  --env DOCKER_HOST=tcp://docker:2376 \
+  --env DOCKER_CERT_PATH=/certs/client \
+  --env DOCKER_TLS_VERIFY=1 \
+  --volume jenkins-data:/var/jenkins_home \
+  --volume jenkins-docker-certs:/certs/client:ro \
+  --publish 8086:8080 \
+  --publish 50000:50000 \
+  myjenkins-blueocean:1.1
+```
+
+You can now visit `localhost:8086` with your browser. The first time you login into jenkins, you will need a password
+that you can retrieve from the docker logs:
+
+`docker logs jenkins-blueocean -f`
+
+Next, you will be prompted to create a new admin user.
