@@ -81,11 +81,11 @@ dependencyManagement {
 tasks.register("slowJUnit", Test) {
     useJUnitPlatform {
         includeTags("slow")
+        jvmArgs = ['-Dspring.profiles.active=cucumber']
     }
 }
 
 test {
-    //systemProperty 'spring.profiles.active', 'cucumber'
     useJUnitPlatform {
         excludeTags 'slow'
     }
