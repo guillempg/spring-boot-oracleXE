@@ -30,6 +30,22 @@ pipeline {
                 sh './gradlew test'
             }
         }
+        stage('SonarQube analysis') {
+            steps {
+                withSonarQubeEnv('sonarqube_server') { // If you have configured more than one global server connection, you can specify its name
+                    sh './gradlew sonarqube'
+                }
+            }
+        }
+        stage("Sonarqube Quality Gate"){
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
+                    // true = set pipeline to UNSTABLE, false = don't
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
         stage('Slow JUnit test'){
             steps{
                 sh './gradlew slowJUnit'
