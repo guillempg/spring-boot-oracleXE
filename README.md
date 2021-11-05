@@ -307,14 +307,20 @@ and then copying the `kcdump.json` file out of the **keycloakexport** container 
 
 ## Sonarqube
 
+We first create a docker network:
+
+```bash
+docker network create devops
+```
+
 In order to analyze this project code using Sonarqube, run Sonarqube Docker container from the project's root folder
 like this:
 
 ```bash
 docker run -d --name sonarqube \
     -p 9000:9000 \
+    --network devops \
     -v $(pwd)/sonarqube:/opt/sonarqube/data \
-    -Dsonar.ce.javaOpts="-Xms750m -Xmx750m" \
     sonarqube:8.9.3-community
 ```
 
@@ -361,13 +367,7 @@ sonarqube
 
 We followed [these instructions](https://www.jenkins.io/doc/book/installing/docker/):
 
-create a docker network:
-
-```bash
-docker network create jenkins
-```
-
-we also need to run a "Docker in docker" image:
+We need to run a "Docker in docker" image:
 
 ```bash
 docker run \
@@ -375,7 +375,7 @@ docker run \
   --rm \
   --detach \
   --privileged \
-  --network jenkins \
+  --network devops \
   --network-alias docker \
   --env DOCKER_TLS_CERTDIR=/certs \
   --volume jenkins-docker-certs:/certs/client \
@@ -394,7 +394,7 @@ And finally run your myjenkins-blueocean:1.1 image with:
 docker run --name jenkins-blueocean \
   --rm \
   --detach \
-  --network jenkins \
+  --network devops \
   --env DOCKER_HOST=tcp://docker:2376 \
   --env DOCKER_CERT_PATH=/certs/client \
   --env DOCKER_TLS_VERIFY=1 \
