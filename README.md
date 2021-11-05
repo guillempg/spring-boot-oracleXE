@@ -219,28 +219,16 @@ First we need to create a docker network:
 
 `docker network create keycloak-network`
 
-Then, from root folder of the project, we start an oracle container pointing to the volume inside
-folder `oracle18.4.0XE` of this project:
+Then, from root folder of the project, we start an oracle container pointing to the volume inside folder `oracle_init` (
+which will create both the application and keycloak's users inside Oracle, and grant their permissions)
+of this project:
 
 ```bash
 docker run -d --name ora18xeBDD --net keycloak-network \
 -p 1521:1521 \
 -p 5500:5500 \
--v $(pwd)/oracle18.4.0XE:/opt/oracle/oradata \
-oracle/database:18.4.0-xe
-```
-
-In order to not mix our application and keycloak tables, we create a new Oracle keycloak user using a SYSTEM datasource:
-
-```sql
-alter
-session set "_ORACLE_SCRIPT"=true;
-drop
-user KEYCLOAK cascade;
-create
-user keycloak identified by keycloak
-    quota unlimited on users;
-grant connect, resource to keycloak;
+-v $(pwd)/oracle_init:/container-entrypoint-initdb.d \
+gvenzl/oracle-xe:18.4.0-slim
 ```
 
 you can then create a keycloak user DataSource in the same way you did for users `SYSTEM` and `testuser` before.
@@ -269,8 +257,10 @@ jboss/keycloak
 ```
 
 Check with `docker logs keycloakimport -f` that the import was successful, and if so, we
-stop `docker stop keycloakimport`
-and remove this container `docker rm keycloakimport`.
+stop `docker stop keycloakimport` and remove this container `docker rm keycloakimport`. This container could be started
+again, even if the realm and users have already been imported previously, but any changes done would be lost as the
+import process first removes the existing realm before importing it from `kcdump.json` (keycloak logs hint at this
+behaviour: `Realm 'springjpaoracle' already exists. Removing it before import`)
 
 Next, we start a new keycloak container that will not import anything with:
 
@@ -308,7 +298,6 @@ docker run -d -p 8088:8080 --name keycloakexport --net keycloak-network \
 -e DB_DATABASE=XE \
 -e DB_USER=keycloak \
 -e DB_PASSWORD=keycloak \
--v $(pwd)/keycloak/realm-export.json:/tmp/example-realm.json \
 -v $(pwd)/keycloak/ojdbc8.jar:/opt/jboss/keycloak/modules/system/layers/base/com/oracle/jdbc/main/driver/ojdbc.jar \
 jboss/keycloak
 ```

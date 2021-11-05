@@ -5,6 +5,7 @@ pipeline {
     }
     tools {
         gradle 'gradle-7.2'
+        maven 'mvn'
     }
     stages {
         stage('Checkout from GitHub'){
@@ -17,6 +18,11 @@ pipeline {
             steps{
                 sh './gradlew compileJava'
                 sh './gradlew compileTestJava'
+            }
+        }
+        stage("Copy OJDB driver"){
+            steps {
+                sh 'mvn org.apache.maven.plugins:maven-dependency-plugin:2.4:get -Dartifact=com.oracle.database.jdbc:ojdbc8:21.3.0.0 -Ddest=keycloak/ojdbc8.jar'
             }
         }
         stage('JUnit test'){
