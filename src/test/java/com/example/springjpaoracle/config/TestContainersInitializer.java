@@ -6,13 +6,11 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.*;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Optional;
 
 @Slf4j
 public class TestContainersInitializer implements ApplicationContextInitializer<ConfigurableApplicationContext>
@@ -23,29 +21,21 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
     private final RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:3-management")
             .withExposedPorts(5672, 15672);
 
-    private final String oracleImage = Optional.ofNullable(System.getenv("ORACLE_XE_IMAGE")).orElse("oracle/database:18.4.0-xe");
+    private final String oracleImage = "gvenzl/oracle-xe:18.4.0-slim";
 
     private final OracleContainer oracle = new OracleContainer(oracleImage)
-            .withLogConsumer(new Slf4jLogConsumer(log))
             .withNetwork(network)
             .withNetworkAliases("oracle")
             .withEnv("ORACLE_PASSWORD", "oracle")
-            //.withEnv("ORACLE_DATABASE", "testuser")
-            //.withEnv("APP_USER", "testuser")
-            //.withEnv("APP_USER_PASSWORD", "testpassword")
-            //.withFileSystemBind("oracle18.4.0XE", "/opt/oracle/oradata", BindMode.READ_WRITE)
             .withFileSystemBind("oracle_init", "/container-entrypoint-initdb.d", BindMode.READ_WRITE)
-            //.withUsername("testuser")
-            //.withPassword("testpassword")
             .withExposedPorts(1521, 5500);
 
     private final GenericContainer<?> keycloak = new GenericContainer<>(DockerImageName.parse("jboss/keycloak:15.0.2"))
             .withNetwork(network)
-            .withFileSystemBind("keycloak/realm-export.json", "/opt/jboss/keycloak/imports/realm-export.json")
+            .withFileSystemBind("keycloak/export/kcdump.json", "/tmp/kcdump.json")
             .withFileSystemBind("keycloak/ojdbc8.jar", "/opt/jboss/keycloak/modules/system/layers/base/com/oracle/jdbc/main/driver/ojdbc.jar")
             .withExposedPorts(8080)
-            .withEnv("JAVA_OPTS_APPEND", "-Dkeycloak.profile.feature.upload_scripts=enabled")
-            .withEnv("KEYCLOAK_IMPORT", "/opt/jboss/keycloak/imports/realm-export.json")
+            .withEnv("JAVA_OPTS_APPEND", "-Dkeycloak.profile.feature.upload_scripts=enabled -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=/tmp/kcdump.json")
             .withEnv("KEYCLOAK_USER", "admin")
             .withEnv("KEYCLOAK_PASSWORD", "admin")
             .withEnv("DB_VENDOR", "oracle")
