@@ -210,9 +210,7 @@ application URL `http://localhost:8080/actuator/prometheus`).
 
 ## Keycloak configuration
 
-Authentication for this project is done via [Keycloak](https://www.keycloak.org/). We have added the realm
-configuration `keycloak/initialize_keycloak.sh` but this configuration unfortunately does not include any users,
-therefore we will need to create users and assign them the different roles.
+Authentication for this project is done via [Keycloak](https://www.keycloak.org/).
 
 Keycloak docker container by default comes with an in-memory database, but we will use our oracleXE database to persist
 all the keycloak configuration tables and have them readily available.
@@ -251,15 +249,59 @@ In order to configure Keycloak to use our OracleXE DB, we first need
 to [download Oracle JDBC driver](https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html), version 18c,
 and copy it inside project folder `keycloak`. Make sure the file is named `ojdbc8.jar`.
 
-Next, we start a keycloak container in the same docker network (keycloak-network). It will create all keycloak tables
-and initialize a `springjpaoracle` realm within our Oracle XE DB:
+Keycloak realm and users configuration for this project was exported to file `keycloak/export/kcdump.json`, and this
+file can be used by a keycloak container used to configure everything at once:
+
+```bash
+docker run -d -p 8088:8080 --name keycloakimport --net keycloak-network \
+-e JAVA_OPTS_APPEND="-Dkeycloak.profile.feature.upload_scripts=enabled -Dkeycloak.migration.action=import -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=/tmp/kcdump.json" \
+-e KEYCLOAK_USER=admin \
+-e KEYCLOAK_PASSWORD=admin \
+-e DB_VENDOR=oracle \
+-e DB_ADDR=ora18xeBDD \
+-e DB_PORT=1521 \
+-e DB_DATABASE=XE \
+-e DB_USER=keycloak \
+-e DB_PASSWORD=keycloak \
+-v $(pwd)/keycloak/export/kcdump.json:/tmp/kcdump.json \
+-v $(pwd)/keycloak/ojdbc8.jar:/opt/jboss/keycloak/modules/system/layers/base/com/oracle/jdbc/main/driver/ojdbc.jar \
+jboss/keycloak
+```
+
+Check with `docker logs keycloakimport -f` that the import was successful, and if so, we
+stop `docker stop keycloakimport`
+and remove this container `docker rm keycloakimport`.
+
+Next, we start a new keycloak container that will not import anything with:
 
 ```bash
 docker run -d -p 8088:8080 --name keycloak --net keycloak-network \
--e JAVA_OPTS_APPEND=-Dkeycloak.profile.feature.upload_scripts=enabled \
 -e KEYCLOAK_USER=admin \
 -e KEYCLOAK_PASSWORD=admin \
--e KEYCLOAK_IMPORT=/tmp/example-realm.json \
+-e DB_VENDOR=oracle \
+-e DB_ADDR=ora18xeBDD \
+-e DB_PORT=1521 \
+-e DB_DATABASE=XE \
+-e DB_USER=keycloak \
+-e DB_PASSWORD=keycloak \
+-v $(pwd)/keycloak/ojdbc8.jar:/opt/jboss/keycloak/modules/system/layers/base/com/oracle/jdbc/main/driver/ojdbc.jar \
+jboss/keycloak
+```
+
+Have a look at your local Keycloak visiting `http://localhost:8088` with username `admin` and password `admin` as
+configured above. Keycloak should have 5 users (Springjpaoracle realm --> Manage --> Users, and click on **View all
+users**):
+`nickfury` (with `admin` role), `hulk` (with `teacher`role), and `spidermand`, `antman` and `deadpool` all
+with `student` role. All five users have the same `test1` password.
+
+The `kcdump.json` full export (including users), might be useful in case that you want to migrate to another database,
+It was done creating a temporary docker container like follows:
+
+```bash
+docker run -d -p 8088:8080 --name keycloakexport --net keycloak-network \
+-e JAVA_OPTS_APPEND="-Dkeycloak.profile.feature.upload_scripts=enabled -Dkeycloak.migration.action=export -Dkeycloak.migration.provider=singleFile -Dkeycloak.migration.file=/tmp/kcdump.json" \
+-e KEYCLOAK_USER=admin \
+-e KEYCLOAK_PASSWORD=admin \
 -e DB_VENDOR=oracle \
 -e DB_ADDR=ora18xeBDD \
 -e DB_PORT=1521 \
@@ -271,21 +313,8 @@ docker run -d -p 8088:8080 --name keycloak --net keycloak-network \
 jboss/keycloak
 ```
 
-Have a look at your local Keycloak visiting `http://localhost:8088` with username `admin` and password `admin` as
-configured above.
-
-At this point, we still need to create and configure some roles, users and their passwords inside keycloak. We will do
-so by executing the bash script in folder `keycloak/initialize_keycloak.sh`
-
-> If you get the error "jq: command not found" while running the script, download it from
-> https://stedolan.github.io/jq/download/
-
-This script uses Keycloak REST endpoints, have a look
-at [Keycloak REST API](https://www.keycloak.org/docs-api/5.0/rest-api/index.html). There is a Postman collection of
-queries for the different endpoints [here](https://documenter.getpostman.com/view/7294517/SzmfZHnd).
-
-This script creates 4 users: `nickfury` (with `admin` role), `hulk` (with `teacher`role), and `spidermand` and `antman`
-both with `student` role. All four users have the same `test1` password.
+and then copying the `kcdump.json` file out of the **keycloakexport** container like this:
+`sudo docker cp keycloakexport:/tmp/kcdump.json keycloak/export/`
 
 ## Sonarqube
 
