@@ -18,7 +18,7 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
 
     private final Network network = Network.newNetwork();
 
-    private final RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:3-management")
+    private final RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:3-alpine")
             .withExposedPorts(5672, 15672);
 
     private final String oracleImage = "gvenzl/oracle-xe:18.4.0-slim";
