@@ -83,6 +83,10 @@ tasks.register("slowJUnit", Test) {
         includeTags("slow")
         jvmArgs = ['-Dspring.profiles.active=cucumber']
     }
+    testLogging {
+        outputs.upToDateWhen { false }
+        showStandardStreams = true
+    }
 }
 
 test {
