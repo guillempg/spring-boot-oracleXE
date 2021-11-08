@@ -2,6 +2,7 @@ Feature: Student registration and deletion
 
   Background:
     Given the app is running
+    And users authorization is configured
     And 'admin' user 'nickfury' logs into the application with password 'test1'
     And user 'nickfury' retrieves external ids for users:
       | hulk      |
