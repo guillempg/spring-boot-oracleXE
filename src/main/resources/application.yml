@@ -23,6 +23,11 @@ spring:
           destination: students.topic
         register-student-output:
           destination: students.topic
+  flyway:
+    enabled: true
+    schemas: TESTUSER
+    locations: classpath:db/migration
+
   #      default:
   #        contentType: application/json
   rabbitmq:
@@ -36,7 +41,7 @@ spring:
         format_sql: false
     show-sql: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
     open-in-view: false
   datasource:
     url: "jdbc:oracle:thin:@localhost:${ORACLE_PORT:1521}:XE"
