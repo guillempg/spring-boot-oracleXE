@@ -6,7 +6,6 @@ import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testcontainers.containers.*;
-import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
@@ -25,16 +24,12 @@ public class TestContainersInitializer implements ApplicationContextInitializer<
     private final String oracleImage = "gvenzl/oracle-xe:18.4.0-slim";
 
     private final OracleContainer oracle = new OracleContainer(oracleImage)
-            .withLogConsumer(new Slf4jLogConsumer(log))
             .withNetwork(network)
             .withNetworkAliases("oracle")
             .withEnv("ORACLE_PASSWORD", "oracle")
-            .withFileSystemBind("oracle_init", "/container-entrypoint-initdb.d", BindMode.READ_WRITE)
             .withUsername("testuser")
             .withPassword("testpassword")
-            .withEnv("ORACLE_DATABASE", "testuser")
-            .withEnv("APP_USER", "testuser")
-            .withEnv("APP_USER_PASSWORD", "testpassword")
+            .withFileSystemBind("oracle_init", "/container-entrypoint-initdb.d", BindMode.READ_WRITE)
             .withExposedPorts(1521, 5500);
 
     private final GenericContainer<?> keycloak = new GenericContainer<>(DockerImageName.parse("jboss/keycloak:15.0.2"))

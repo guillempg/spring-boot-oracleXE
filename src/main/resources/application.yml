@@ -26,7 +26,6 @@ spring:
   flyway:
     enabled: true
     schemas: TESTUSER
-    locations: classpath:db/migration
 
   #      default:
   #        contentType: application/json
