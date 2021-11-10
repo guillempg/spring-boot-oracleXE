@@ -41,5 +41,6 @@ oracle18.4.0XE/
 grafana/**
 keycloak/ojdbc8.jar
 sonarqube/**
+kubernetes/springjpaoracle*tgz
 
 .DS_Store

@@ -19,8 +19,10 @@ spring:
       bindings:
         studentDeleteInput-in-0:
           destination: student_delete.topic
+          group: springjpaoracle-consumer
         studentRegistryInput-in-0:
           destination: students.topic
+          group: springjpaoracle-consumer
         register-student-output:
           destination: students.topic
   #      default:
