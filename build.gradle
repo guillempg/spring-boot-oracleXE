@@ -99,6 +99,10 @@ jib {
     from {
         image = "adoptopenjdk:11-jre-hotspot"
     }
+    to {
+        image = 'localhost:32000/springjpaoracle'
+        tags = ['0.0.1-SNAPSHOT']
+    }
     container {
         mainClass = 'com.example.springjpaoracle.Application'
     }
