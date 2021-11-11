@@ -9,7 +9,6 @@ import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,18 +21,16 @@ public class StudentService
     private final StudentRepository studentRepository;
     private final CourseRepository courseRepository;
     private final TeacherRepository teacherRepository;
-    private final PhoneRepository phoneRepository;
     private final StudentCourseScoreRepository scoreRepository;
     private final MeterRegistry registry;
     private final StudentRegistrationRepository studentRegistrationRepository;
     private final TeacherAssignationRepository teacherAssignationRepository;
 
-    public StudentService(StudentRepository studentRepository, CourseRepository courseRepository, final TeacherRepository teacherRepository, final PhoneRepository phoneRepository, final StudentCourseScoreRepository scoreRepository, final MeterRegistry registry, final StudentRegistrationRepository studentRegistrationRepository, final TeacherAssignationRepository teacherAssignationRepository)
+    public StudentService(StudentRepository studentRepository, CourseRepository courseRepository, final TeacherRepository teacherRepository, final StudentCourseScoreRepository scoreRepository, final MeterRegistry registry, final StudentRegistrationRepository studentRegistrationRepository, final TeacherAssignationRepository teacherAssignationRepository)
     {
         this.studentRepository = studentRepository;
         this.courseRepository = courseRepository;
         this.teacherRepository = teacherRepository;
-        this.phoneRepository = phoneRepository;
         this.scoreRepository = scoreRepository;
         this.registry = registry;
         this.studentRegistrationRepository = studentRegistrationRepository;
@@ -55,20 +52,6 @@ public class StudentService
         //List<Phone> phones = findOrCreatePhones(registrationRequest.getPhoneNumbers());
         //registrationRequest.setPhoneNumbers(phones);
         return studentRepository.save(student);
-    }
-
-    private List<Phone> findOrCreatePhones(final List<Phone> phones)
-    {
-        if (phones != null)
-        {
-            return phones.stream()
-                    .map(phone -> phoneRepository.findByPhoneNumberIgnoreCase(phone.getPhoneNumber())
-                            .orElseGet(() -> phoneRepository.save(phone)))
-                    .collect(Collectors.toList());
-        } else
-        {
-            return Collections.emptyList();
-        }
     }
 
     public List<Student> findStudentsByCoursesNameIgnoreCase(final String courseName)

@@ -14,7 +14,6 @@ public class AppConfig
     @Bean
     public StudentService studentService(StudentRepository studentRepository,
                                          CourseRepository courseRepository,
-                                         PhoneRepository phoneRepository,
                                          StudentCourseScoreRepository scoreRepository,
                                          MeterRegistry registry,
                                          final StudentRegistrationRepository studentRegistrationRepository,
@@ -24,7 +23,6 @@ public class AppConfig
         return new StudentService(studentRepository,
                 courseRepository,
                 teacherRepository,
-                phoneRepository,
                 scoreRepository,
                 registry,
                 studentRegistrationRepository,

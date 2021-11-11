@@ -19,7 +19,7 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 @Import(TestChannelBinderConfiguration.class)
 @Disabled("Flyway bean requires database even though it's not needed in these tests, consider replace @SpringBootTest with something more specific for messaging")
-public class MessagingConfigTest
+class MessagingConfigTest
 {
 
     @MockBean
@@ -30,7 +30,7 @@ public class MessagingConfigTest
     InputDestination inputDestination;
 
     @Test
-    public void shouldRegisterStudentWhenMessageReceived()
+    void shouldRegisterStudentWhenMessageReceived()
     {
         var registrationRequest = RegistrationRequest.builder()
                 .studentKeycloakId("123456")
@@ -42,7 +42,7 @@ public class MessagingConfigTest
     }
 
     @Test
-    public void shouldDeleteStudentWhenMessageReceived()
+    void shouldDeleteStudentWhenMessageReceived()
     {
         String keycloakId = "123123";
         inputDestination.send(new GenericMessage<>(keycloakId), "student_delete.topic");
