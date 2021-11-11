@@ -57,6 +57,8 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    testImplementation group: 'org.springframework.cloud', name: 'spring-cloud-stream', classifier: 'test-binder'
+
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:oracle-xe'
     testImplementation 'org.testcontainers:rabbitmq'
