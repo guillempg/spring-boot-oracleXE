@@ -11,19 +11,15 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.test.web.reactive.server.EntityExchangeResult;
-import org.springframework.web.reactive.function.BodyInserters;
 
 import java.util.Collections;
 import java.util.List;
@@ -53,19 +49,14 @@ public class CucumberSteps
     private final RabbitMQSupport rabbitMQSupport;
     private final ApplicationClient applicationClient;
     private final KeycloakUserCache keycloakUserCache;
-    private final String keycloakBaseUrl;
-    private final String clientId;
-    private final String clientSecret;
 
     public CucumberSteps(final ConfigurableApplicationContext context,
                          final CompositeRepository uberRepository,
                          final StreamBridge streamBridge,
                          @Qualifier("studentDeleteInput-in-0") final MessageChannel studentDeleteChannel,
                          final RabbitMQSupport rabbitMQSupport,
-                         final ApplicationClient applicationClient, final KeycloakUserCache keycloakUserCache,
-                         @Value("${application.keycloak_base_url}") final String keycloakBaseUrl,
-                         @Value("${application.client_id}") final String clientId,
-                         @Value("${application.client_secret}") final String clientSecret)
+                         final ApplicationClient applicationClient,
+                         final KeycloakUserCache keycloakUserCache)
     {
         this.context = context;
         this.applicationClient = applicationClient;
@@ -74,9 +65,6 @@ public class CucumberSteps
         this.studentDeleteChannel = studentDeleteChannel;
         this.rabbitMQSupport = rabbitMQSupport;
         this.keycloakUserCache = keycloakUserCache;
-        this.keycloakBaseUrl = keycloakBaseUrl;
-        this.clientId = clientId;
-        this.clientSecret = clientSecret;
     }
 
     @After
@@ -86,33 +74,6 @@ public class CucumberSteps
         uberRepository.cleanTables();
         rabbitMQSupport.reset();
     }
-
-    @Given("users authorization is configured")
-    public void configureUsersAuthorization()
-    {
-        final String realmToken = getRealmAccessToken();
-
-        List<String> usernames = List.of("nickfury", "hulk", "spiderman", "antman", "deadpool");
-
-    }
-
-    private String getRealmAccessToken()
-    {
-        return applicationClient.getWebTestClient().post()
-                .uri(keycloakBaseUrl + "/auth/realms/master/protocol/openid-connect/token")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .body(BodyInserters.fromFormData("client_id", clientId)
-                        .with("client_secret", clientSecret)
-                        .with("grant_type", "client_credentials"))
-                .exchange()
-                .expectBody(new ParameterizedTypeReference<Map<String, String>>()
-                {
-                })
-                .returnResult()
-                .getResponseBody()
-                .get("access_token");
-    }
-
 
     @Given("user {string} retrieves external ids for users:")
     public void retrieves_external_ids_for_users(String adminUser, List<String> usernames)

@@ -46,6 +46,10 @@ spec:
               value: "testpassword"
             - name: RABBIT_HOST
               value: "rabbitmq.default.svc.cluster.local"
+            - name: KEYCLOAK_ISSUER_URI
+              value: http://keycloak.default.svc.cluster.local:30081/auth/realms/springjpaoracle
+            - name: KEYCLOAK_JWK_SET_URI
+              value: http://keycloak.default.svc.cluster.local:30081/auth/realms/springjpaoracle/protocol/openid-connect/certs
             - name: RABBIT_USERNAME
               value: "user"
             - name: RABBIT_PASSWORD

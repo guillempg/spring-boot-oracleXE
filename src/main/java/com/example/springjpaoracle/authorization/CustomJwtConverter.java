@@ -1,4 +1,4 @@
-package com.example.springjpaoracle.auth0;
+package com.example.springjpaoracle.authorization;
 
 import com.nimbusds.jose.shaded.json.JSONArray;
 import com.nimbusds.jose.shaded.json.JSONObject;

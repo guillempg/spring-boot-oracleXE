@@ -2,13 +2,11 @@ package com.example.springjpaoracle.service;
 
 import com.example.springjpaoracle.dto.RegistrationRequest;
 import com.example.springjpaoracle.dto.ScoreRequest;
-import com.example.springjpaoracle.exception.CourseNotFoundException;
-import com.example.springjpaoracle.exception.StudentNotFoundException;
-import com.example.springjpaoracle.exception.StudentRegistrationNotFoundException;
-import com.example.springjpaoracle.exception.TeacherNotFoundException;
+import com.example.springjpaoracle.exception.*;
 import com.example.springjpaoracle.model.*;
 import com.example.springjpaoracle.repository.*;
 import io.micrometer.core.instrument.MeterRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
@@ -16,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class StudentService
 {
     public static final String REGISTER_STUDENT_REQUEST_COUNT = "registerStudentRequestCount";
@@ -27,8 +26,9 @@ public class StudentService
     private final StudentCourseScoreRepository scoreRepository;
     private final MeterRegistry registry;
     private final StudentRegistrationRepository studentRegistrationRepository;
+    private final TeacherAssignationRepository teacherAssignationRepository;
 
-    public StudentService(StudentRepository studentRepository, CourseRepository courseRepository, final TeacherRepository teacherRepository, final PhoneRepository phoneRepository, final StudentCourseScoreRepository scoreRepository, final MeterRegistry registry, final StudentRegistrationRepository studentRegistrationRepository)
+    public StudentService(StudentRepository studentRepository, CourseRepository courseRepository, final TeacherRepository teacherRepository, final PhoneRepository phoneRepository, final StudentCourseScoreRepository scoreRepository, final MeterRegistry registry, final StudentRegistrationRepository studentRegistrationRepository, final TeacherAssignationRepository teacherAssignationRepository)
     {
         this.studentRepository = studentRepository;
         this.courseRepository = courseRepository;
@@ -37,6 +37,7 @@ public class StudentService
         this.scoreRepository = scoreRepository;
         this.registry = registry;
         this.studentRegistrationRepository = studentRegistrationRepository;
+        this.teacherAssignationRepository = teacherAssignationRepository;
     }
 
     @Transactional
@@ -101,6 +102,8 @@ public class StudentService
                 .orElseThrow(() -> new CourseNotFoundException("Course with name " + scoreRequest.getCourseName() + NOT_FOUND));
         final StudentRegistration registration = studentRegistrationRepository.findByStudentIdAndCourseId(student.getId(), course.getId())
                 .orElseThrow(() -> new StudentRegistrationNotFoundException(student.getId(), course.getId()));
+        teacherAssignationRepository.findByTeacherIdAndCourseName(teacher.getId(), course.getName())
+                .orElseThrow(() -> new TeacherAssignationException(teacher.getKeycloakId(), course.getName()));
 
         score.setScore(scoreRequest.getScore());
         score.setRegistration(registration);
