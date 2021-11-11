@@ -6,66 +6,6 @@
 	},
 	"item": [
 		{
-			"name": "Keycloak token request for read-only user employee1",
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/x-www-form-urlencoded"
-					}
-				],
-				"body": {
-					"mode": "urlencoded",
-					"urlencoded": [
-						{
-							"key": "grant_type",
-							"value": "password",
-							"type": "text"
-						},
-						{
-							"key": "client_id",
-							"value": "springjpaoracle",
-							"type": "text"
-						},
-						{
-							"key": "client_secret",
-							"value": "5f226042-3229-4449-a990-51896866db2d",
-							"type": "text"
-						},
-						{
-							"key": "username",
-							"value": "employee1",
-							"type": "text"
-						},
-						{
-							"key": "password",
-							"value": "mypassword",
-							"type": "text"
-						}
-					]
-				},
-				"url": {
-					"raw": "http://localhost:8081/auth/realms/springjpaoracle/protocol/openid-connect/token",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8081",
-					"path": [
-						"auth",
-						"realms",
-						"springjpaoracle",
-						"protocol",
-						"openid-connect",
-						"token"
-					]
-				},
-				"description": "This is a read only user for GET"
-			},
-			"response": []
-		},
-		{
 			"name": "Keycloak token request for read-only user employee2",
 			"request": {
 				"method": "POST",
@@ -126,17 +66,105 @@
 			"response": []
 		},
 		{
-			"name": "List Enrolled Students",
+			"name": "Enroll spiderman",
 			"request": {
-				"method": "GET",
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
 				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"courseNames\": [\"Explosives 101\", \"Web throwing\"], \"studentKeycloakId\": \"9396a78e-313b-4fab-8e06-387686962561\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
 				"url": {
-					"raw": "http://localhost:8080/students/listEnrolledStudents?courseName=Explosives%20101",
+					"raw": "http://localhost:30080/students/register",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "30080",
+					"path": [
+						"students",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Enroll deadpool",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"courseNames\": [\"Explosives 210\", \"Foul speaking\"], \"studentKeycloakId\": \"cd66ba70-f2e5-4d63-9a81-b26a8ead33ae\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:30080/students/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30080",
+					"path": [
+						"students",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Enrolled students",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:30080/students/listEnrolledStudents?courseName=%22Explosives%20101%22",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30080",
 					"path": [
 						"students",
 						"listEnrolledStudents"
@@ -144,7 +172,7 @@
 					"query": [
 						{
 							"key": "courseName",
-							"value": "Explosives%20101"
+							"value": "%22Explosives%20101%22"
 						}
 					]
 				}
@@ -152,43 +180,14 @@
 			"response": []
 		},
 		{
-			"name": "Enroll Tasmanian Devil",
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{ \"name\": \"Demonio de Tasmania\", \"courses\": [{\"name\":\"Explosives 101\", \"description\":\"pum\"}], \"socialSecurityNumber\": \"222-222-222\"}",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:8080/students/register",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"students",
-						"register"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Enroll Wile E. Coyote",
+			"name": "SaveTeacher hulk",
 			"request": {
 				"auth": {
 					"type": "bearer",
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlJDZG00Wi1xaExRTzhUXzBNMld3diJ9.eyJpc3MiOiJodHRwczovL2Rldi02ZWQ0ZDZxMi5ldS5hdXRoMC5jb20vIiwic3ViIjoicEFCREFpSXQ5aFZ6NlBhNndwb29LTnJPY1NmcVd4Z0xAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9ndWlsbGVtcGcvc3ByaW5nLWJvb3Qtb3JhY2xlWEUiLCJpYXQiOjE2MzQ2MzIzNzQsImV4cCI6MTYzNDcxODc3NCwiYXpwIjoicEFCREFpSXQ5aFZ6NlBhNndwb29LTnJPY1NmcVd4Z0wiLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMifQ.0Gveywr4GRs6oaLEa0ceecfUqS9QmrgjyXRmkK1BA2UxnpZzD9H9HVnYpZlHjWWhwd7rQv2V0lyWH71WvsvdfiTHMmZP_5WfEmBNvBlWRk6kUsygUXQ5T1YB6GpNnepa1xJdEJmcPJ8sXmjm3MBG9tsskAGtpndRL11qlOsNsLs-Za2pqufeG-MrjUxp1HRApfLFmO-reNxz7_7VqXfZdTqoMI097YXLBLaKGHvVRtltWjuyhyoBOC3HtrZeSX-WqIquPUMzmohAeS31bYkyJfNU92__7O-JBc7iIwbNSsln5AduDwHC_166mii7LuOgyM4NTB1-uO2MfWApUFRw-g",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
@@ -197,7 +196,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{ \"name\": \"Wile E. Coyote3\", \"courses\": [{\"name\":\"Explosives 101\", \"description\":\"pum\"}, {\"name\":\"Rocket Riding 101\", \"description\":\"yeha\"}], \"socialSecurityNumber\": \"411-111-111\"}",
+					"raw": "{ \"keycloakId\": \"819c222f-c6f1-4fc2-abbd-f864f7dd39bf\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -205,64 +204,37 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/students/register",
+					"raw": "http://localhost:30080/saveteacher",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "30080",
 					"path": [
-						"students",
-						"register"
+						"saveteacher"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "List Student by Name",
+			"name": "AssignTeacher hulk to Explosives 101",
 			"request": {
 				"auth": {
 					"type": "bearer",
 					"bearer": [
 						{
 							"key": "token",
-							"value": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IlJDZG00Wi1xaExRTzhUXzBNMld3diJ9.eyJpc3MiOiJodHRwczovL2Rldi02ZWQ0ZDZxMi5ldS5hdXRoMC5jb20vIiwic3ViIjoicEFCREFpSXQ5aFZ6NlBhNndwb29LTnJPY1NmcVd4Z0xAY2xpZW50cyIsImF1ZCI6Imh0dHBzOi8vZ2l0aHViLmNvbS9ndWlsbGVtcGcvc3ByaW5nLWJvb3Qtb3JhY2xlWEUiLCJpYXQiOjE2MzQ2MzIzNzQsImV4cCI6MTYzNDcxODc3NCwiYXpwIjoicEFCREFpSXQ5aFZ6NlBhNndwb29LTnJPY1NmcVd4Z0wiLCJndHkiOiJjbGllbnQtY3JlZGVudGlhbHMifQ.0Gveywr4GRs6oaLEa0ceecfUqS9QmrgjyXRmkK1BA2UxnpZzD9H9HVnYpZlHjWWhwd7rQv2V0lyWH71WvsvdfiTHMmZP_5WfEmBNvBlWRk6kUsygUXQ5T1YB6GpNnepa1xJdEJmcPJ8sXmjm3MBG9tsskAGtpndRL11qlOsNsLs-Za2pqufeG-MrjUxp1HRApfLFmO-reNxz7_7VqXfZdTqoMI097YXLBLaKGHvVRtltWjuyhyoBOC3HtrZeSX-WqIquPUMzmohAeS31bYkyJfNU92__7O-JBc7iIwbNSsln5AduDwHC_166mii7LuOgyM4NTB1-uO2MfWApUFRw-g",
+							"value": "{{token}}",
 							"type": "string"
 						}
 					]
 				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:8080/students/listStudentByName?name=Wile%20E.%20Coyote",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"students",
-						"listStudentByName"
-					],
-					"query": [
-						{
-							"key": "name",
-							"value": "Wile%20E.%20Coyote"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Save Score",
-			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{ \"score\": \"4.99\", \"courseName\":\"Explosives 101\", \"studentSocialSecurityNumber\": \"222-222-222\"}",
+					"raw": "{ \"keycloakId\": \"819c222f-c6f1-4fc2-abbd-f864f7dd39bf\"}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -270,12 +242,129 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/students/score",
+					"raw": "http://localhost:30080/courses/assignteacher",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "30080",
+					"path": [
+						"courses",
+						"assignteacher"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AssignTeacher hulk to Explosives 210",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"keycloakId\": \"819c222f-c6f1-4fc2-abbd-f864f7dd39bf\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:30080/courses/assignteacher",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30080",
+					"path": [
+						"courses",
+						"assignteacher"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Save Score for Deadpool",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"score\": \"4.99\", \"courseName\":\"Explosives 210\", \"studentKeycloakId\": \"cd66ba70-f2e5-4d63-9a81-b26a8ead33ae\", \"teacherKeycloakId\": \"819c222f-c6f1-4fc2-abbd-f864f7dd39bf\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:30080/courses/score",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30080",
+					"path": [
+						"courses",
+						"score"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Save Score for Spiderman",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{ \"score\": \"4.99\", \"courseName\":\"Explosives 101\", \"studentKeycloakId\": \"9396a78e-313b-4fab-8e06-387686962561\", \"teacherKeycloakId\": \"819c222f-c6f1-4fc2-abbd-f864f7dd39bf\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:30080/students/score",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30080",
 					"path": [
 						"students",
 						"score"
@@ -285,22 +374,60 @@
 			"response": []
 		},
 		{
-			"name": "List all courses",
+			"name": "Retrieve info about spiderman",
 			"request": {
 				"auth": {
-					"type": "noauth"
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
 				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/courses",
+					"raw": "http://localhost:30080/students/9396a78e-313b-4fab-8e06-387686962561",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
-					"port": "8080",
+					"port": "30080",
 					"path": [
-						"courses"
+						"students",
+						"9396a78e-313b-4fab-8e06-387686962561"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Retrieve info about deadpool",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:30080/students/cd66ba70-f2e5-4d63-9a81-b26a8ead33ae",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "30080",
+					"path": [
+						"students",
+						"cd66ba70-f2e5-4d63-9a81-b26a8ead33ae"
 					]
 				}
 			},

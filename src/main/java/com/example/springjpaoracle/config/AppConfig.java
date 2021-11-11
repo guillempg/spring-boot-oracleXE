@@ -18,7 +18,8 @@ public class AppConfig
                                          StudentCourseScoreRepository scoreRepository,
                                          MeterRegistry registry,
                                          final StudentRegistrationRepository studentRegistrationRepository,
-                                         final TeacherRepository teacherRepository)
+                                         final TeacherRepository teacherRepository,
+                                         final TeacherAssignationRepository teacherAssignationRepository)
     {
         return new StudentService(studentRepository,
                 courseRepository,
@@ -26,7 +27,8 @@ public class AppConfig
                 phoneRepository,
                 scoreRepository,
                 registry,
-                studentRegistrationRepository);
+                studentRegistrationRepository,
+                teacherAssignationRepository);
     }
 
     @Bean
