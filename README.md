@@ -372,7 +372,6 @@ We need to run a "Docker in docker" image:
 ```bash
 docker run \
   --name jenkins-docker \
-  --rm \
   --detach \
   --privileged \
   --network devops \
@@ -392,7 +391,6 @@ And finally run your myjenkins-blueocean:1.1 image with:
 
 ```bash
 docker run --name jenkins-blueocean \
-  --rm \
   --detach \
   --network devops \
   --env DOCKER_HOST=tcp://docker:2376 \

@@ -102,8 +102,10 @@ public class StudentService
                 .orElseThrow(() -> new CourseNotFoundException("Course with name " + scoreRequest.getCourseName() + NOT_FOUND));
         final StudentRegistration registration = studentRegistrationRepository.findByStudentIdAndCourseId(student.getId(), course.getId())
                 .orElseThrow(() -> new StudentRegistrationNotFoundException(student.getId(), course.getId()));
-        teacherAssignationRepository.findByTeacherIdAndCourseName(teacher.getId(), course.getName())
-                .orElseThrow(() -> new TeacherAssignationException(teacher.getKeycloakId(), course.getName()));
+        if (teacherAssignationRepository.findByTeacherIdAndCourseName(teacher.getId(), course.getName()).isEmpty())
+        {
+            throw new TeacherAssignationException(teacher.getKeycloakId(), course.getName());
+        }
 
         score.setScore(scoreRequest.getScore());
         score.setRegistration(registration);
