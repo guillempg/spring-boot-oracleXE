@@ -37,7 +37,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.Oracle12cDialect
-        format_sql: true
+        format_sql: false
     show-sql: true
     hibernate:
       ddl-auto: validate

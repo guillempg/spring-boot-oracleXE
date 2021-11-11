@@ -1,4 +1,4 @@
-package com.example.springjpaoracle.auth0;
+package com.example.springjpaoracle.authorization;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
