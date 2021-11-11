@@ -638,10 +638,10 @@ sidecars: []
 service:
   ## @param service.type Kubernetes service type
   ##
-  type: LoadBalancer
+  type: NodePort
   ## @param service.port Service HTTP port
   ##
-  port: 80
+  port: 30081
   ## @param service.httpsPort HTTPS Port
   ##
   httpsPort: 443
@@ -649,7 +649,7 @@ service:
   ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-nodeport
   ##
   nodePorts:
-    http: ""
+    http: "30081"
     https: ""
   ## @param service.clusterIP Keycloak service clusterIP IP
   ## e.g:
