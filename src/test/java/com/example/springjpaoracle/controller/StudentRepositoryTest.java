@@ -1,6 +1,6 @@
 package com.example.springjpaoracle.controller;
 
-import com.example.springjpaoracle.config.TestContainersInitializer;
+import com.example.springjpaoracle.config.OracleTestContainersInitializer;
 import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Student;
 import com.example.springjpaoracle.model.StudentRegistration;
@@ -14,7 +14,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -28,10 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-@ContextConfiguration(initializers = {TestContainersInitializer.class})
+@ContextConfiguration(initializers = {OracleTestContainersInitializer.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Tag("slow")
-@ActiveProfiles("cucumber")
 class StudentRepositoryTest
 {
     @Autowired
