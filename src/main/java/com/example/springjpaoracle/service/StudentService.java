@@ -7,6 +7,7 @@ import com.example.springjpaoracle.model.*;
 import com.example.springjpaoracle.repository.*;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -49,8 +50,6 @@ public class StudentService
                 .collect(Collectors.toList());
         student.setRegistrations(registrations);
 
-        //List<Phone> phones = findOrCreatePhones(registrationRequest.getPhoneNumbers());
-        //registrationRequest.setPhoneNumbers(phones);
         return studentRepository.save(student);
     }
 
@@ -64,6 +63,7 @@ public class StudentService
         studentRepository.deleteByKeycloakId(keycloakId);
     }
 
+    @Cacheable(value = "students",key = "#keycloakId")
     public Optional<Student> findByKeycloakId(final String keycloakId)
     {
         return studentRepository.findByKeycloakId(keycloakId);

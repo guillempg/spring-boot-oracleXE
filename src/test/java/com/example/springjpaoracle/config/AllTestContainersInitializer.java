@@ -17,8 +17,10 @@ public class AllTestContainersInitializer implements ApplicationContextInitializ
         final OracleTestContainersInitializer oracle = new OracleTestContainersInitializer(network);
         final KeycloakTestContainersInitializer keycloak = new KeycloakTestContainersInitializer(network);
         final RabbitMQTestContainersInitializer rabbitMQ = new RabbitMQTestContainersInitializer();
+        final RedisTestContainersInitializer redis = new RedisTestContainersInitializer();
         oracle.initialize(applicationContext);
         keycloak.initialize(applicationContext);
         rabbitMQ.initialize(applicationContext);
+        redis.initialize(applicationContext);
     }
 }
