@@ -1,15 +1,23 @@
-# Spring boot JPA + Oracle XE running in a container
+# Sample application demo
 
-This is a sample project using JPA against an Oracle DB (the Express Edition XE which can be used for testing). First,
-we need to have an Oracle DB installed and available, if you don't have one follow the instructions on next step,
+This is a sample project to register students/assign teachers into courses whose main purpose is to demonstrate how to
+do object relational mapping with JPA against an Oracle DB (the Express Edition XE which can be used for testing), for a
+Spring boot application. The main functionality (student registration to courses, assigning courses to teachers, score
+students...) is exposed both via REST endpoints and message queues, both configured with Spring integration. REST
+endpoints are secured via Spring security using JWT. JWT tokens are issued by a Keycloak docker container.
+
+Oracle XE database is used to store both the entities (Courses, Teachers, Students and their relationships) as well as
+Keycloak realm, roles and users. The message queue functionality is provided via a RabbitMQ docker container.
+
+We also configured a Sonarqube docker container to analyze the code and integrated it with a Jenkins CI container.
+
+First, we need to have an Oracle DB installed and available, if you don't have one follow the instructions on next step,
 otherwise skip it. Testing in the same database that runs in production helps find problems that would otherwise only be
 found when deploying in production, for instance in this application, class `Phone` does have a field `phoneNumber`
 which cannot be named `number`, as it is
 an [Oracle reserved keyword](https://docs.oracle.com/cd/A97630_01/appdev.920/a42525/apb.htm).
 
-This application encodes a REST service (defined in `StudentController.java`) with several endpoints that can be
-accessed through GET, DELETE and POST Http methods. There are several Cucumber test scenarios for the REST service in
-`student_registration_and_deletion.feature`.
+There are several Cucumber test scenarios for the REST service in `student_registration_and_deletion.feature`.
 
 Some of these endpoints can also be accessed via messaging, and are tested
 in `student_registration_and_deletion.feature`
@@ -351,7 +359,7 @@ sonarqube {
 }
 ```
 
-You can can start a Sonarqube analysis with the following command, which assumes that username `admin` has
+You can start a Sonarqube analysis with the following command, which assumes that username `admin` has
 password `sonarqube`:
 
 ```bash
@@ -408,4 +416,21 @@ that you can retrieve from the docker logs:
 
 `docker logs jenkins-blueocean -f`
 
-Next, you will be prompted to create a new admin user.
+Next, you will be prompted to create a new admin user. Finally, now that both Sonarqube and Jenkins containers are up,
+and the project has been analyzed with Sonarqube, we have to configure a WebHook in Sonarqube to report the QualityGate
+outcome to Jenkins. Go to `spring-jpa-oracle` project in Sonarqube, and select Project Settings -> WebHooks
+
+![image](src/main/resources/images/webhook.png)
+
+and set the URL to jenkins (as they run in docker, we use the name we configured in docker)
+
+![image](src/main/resources/images/webhook2.png)
+
+Next we will configure Jenkins to read the configuration of the project's Pipeline directly from the Jenkinsfile in
+GitHub. In Jenkins (visit http://localhost:8086), configure a `New Item` of type `Pipeline`. Under the Pipeline section,
+select `Pipeline from SCM`, choose `Git` as SCM and past the project's GitHub
+URL `https://github.com/guillempg/spring-boot-oracleXE.git`. Finally, set the branch to build to be `*/main`, and the
+Script Path to point to the Jenkinsfile from the project's root folder (simply `Jenkinsfile`, as this file is in the top
+folder of the project). When finished, "Save" and then click "Build now". This pipeline could be configured to check
+GitHub's repository for changes regularly and trigger a build, check
+
