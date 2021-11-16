@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "STUDENT_COURSE_SCORE")
@@ -15,8 +16,10 @@ import javax.persistence.*;
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class StudentCourseScore
+public class StudentCourseScore implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)

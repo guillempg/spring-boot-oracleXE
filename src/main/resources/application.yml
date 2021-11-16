@@ -49,6 +49,10 @@ spring:
     driverClassName: oracle.jdbc.OracleDriver
     hikari:
       initialization-fail-timeout: -1
+  data:
+    redis:
+      repositories:
+        enabled: false
 management:
   endpoints:
     web:
@@ -74,9 +78,3 @@ management:
         http:
           server:
             requests: 1ms, 5ms
-
-logging:
-  level:
-    org:
-      springframework:
-        cache: TRACE

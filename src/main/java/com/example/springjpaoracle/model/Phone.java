@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "PHONE")
@@ -15,8 +16,10 @@ import javax.persistence.*;
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class Phone
+public class Phone  implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)

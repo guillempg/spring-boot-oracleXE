@@ -7,6 +7,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
@@ -16,8 +17,10 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class Course
+public class Course implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @Column
     @GeneratedValue(strategy = GenerationType.IDENTITY)
