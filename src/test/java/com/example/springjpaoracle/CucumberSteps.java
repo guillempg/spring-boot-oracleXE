@@ -3,17 +3,21 @@ package com.example.springjpaoracle;
 import com.example.springjpaoracle.client.ApplicationClient;
 import com.example.springjpaoracle.client.KeycloakUserCache;
 import com.example.springjpaoracle.dto.*;
+import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Student;
 import com.example.springjpaoracle.parameter.*;
+import com.example.springjpaoracle.repository.CourseRepository;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
@@ -33,6 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient;
 import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 
+@Slf4j
 public class CucumberSteps
 {
     public static final String REGISTER_STUDENT_OUTPUT = "register-student-output";
@@ -49,6 +54,8 @@ public class CucumberSteps
     private final RabbitMQSupport rabbitMQSupport;
     private final ApplicationClient applicationClient;
     private final KeycloakUserCache keycloakUserCache;
+    private final RedisTemplate<String, Object> courseRedisTemplate;
+    private final CourseRepository courseRepository;
 
     public CucumberSteps(final ConfigurableApplicationContext context,
                          final CompositeRepository uberRepository,
@@ -56,7 +63,9 @@ public class CucumberSteps
                          @Qualifier("studentDeleteInput-in-0") final MessageChannel studentDeleteChannel,
                          final RabbitMQSupport rabbitMQSupport,
                          final ApplicationClient applicationClient,
-                         final KeycloakUserCache keycloakUserCache)
+                         final KeycloakUserCache keycloakUserCache,
+                         final RedisTemplate<String, Object> courseRedisTemplate,
+                         final CourseRepository courseRepository)
     {
         this.context = context;
         this.applicationClient = applicationClient;
@@ -65,6 +74,8 @@ public class CucumberSteps
         this.studentDeleteChannel = studentDeleteChannel;
         this.rabbitMQSupport = rabbitMQSupport;
         this.keycloakUserCache = keycloakUserCache;
+        this.courseRedisTemplate = courseRedisTemplate;
+        this.courseRepository = courseRepository;
     }
 
     @After
@@ -73,6 +84,39 @@ public class CucumberSteps
     {
         uberRepository.cleanTables();
         rabbitMQSupport.reset();
+    }
+
+    @Given("{string} user {string} creates courses:")
+    public void createCourses(String role, String adminUser, List<CourseHttpRequest> courseRequests)
+    {
+        courseRequests.forEach(req ->
+                applicationClient.getWebTestClient().post()
+                        .uri("/courses/")
+                        .attributes(getOauth2Client(adminUser))
+                        .bodyValue(req)
+                        .exchange()
+                        .expectStatus().isCreated());
+    }
+
+    @When("{string} user {string} requests list of courses")
+    public void userRequestsCourseList(String role, String adminUser)
+    {
+        applicationClient.getWebTestClient().get()
+                .uri("/courses")
+                .attributes(getOauth2Client(adminUser))
+                .exchange()
+                .expectStatus().isOk();
+    }
+
+    @Then("cached courses are:")
+    public void cachedCourses(List<String> courseNames)
+    {
+        final List<Course> all = courseRepository.findAll();
+        all.forEach(
+                c -> log.info("Course:{}", courseRepository.findById(c.getId()))
+        );
+        final Object course = courseRedisTemplate.opsForValue().get("courseCache");
+        assertThat(courseRedisTemplate.keys("courseCache")).isNotEmpty();
     }
 
     @Given("user {string} retrieves external ids for users:")

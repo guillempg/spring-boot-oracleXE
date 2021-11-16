@@ -1,6 +1,7 @@
 package com.example.springjpaoracle.config;
 
 import com.example.springjpaoracle.repository.*;
+import com.example.springjpaoracle.service.CourseService;
 import com.example.springjpaoracle.service.StudentService;
 import com.example.springjpaoracle.service.TeacherService;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -35,5 +36,11 @@ public class AppConfig
                                          final TeacherAssignationRepository teacherAssignationRepository)
     {
         return new TeacherService(teacherRepository, courseRepository, teacherAssignationRepository);
+    }
+
+    @Bean
+    public CourseService courseService(final CourseRepository courseRepository)
+    {
+        return new CourseService(courseRepository);
     }
 }

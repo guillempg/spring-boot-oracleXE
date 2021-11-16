@@ -34,6 +34,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
     {
         http.authorizeRequests()
                 .mvcMatchers(HttpMethod.GET, "/courses").permitAll()
+                .mvcMatchers(HttpMethod.POST, "/courses/").hasAuthority(ADMIN)
                 .mvcMatchers(HttpMethod.POST, "/courses/score").hasAuthority(TEACHER)
                 .mvcMatchers(HttpMethod.GET, "/courses/score/student/**").hasAnyAuthority(STUDENT, TEACHER)
                 .mvcMatchers(HttpMethod.GET, "/courses/score/**").hasAuthority(TEACHER)

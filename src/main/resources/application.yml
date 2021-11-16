@@ -4,6 +4,9 @@ application:
   client_id: springjpaoracle
   client_secret: w8t76w34563ty7hegvsiety8934cv3456yu3o5c4
 spring:
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
   flyway:
     baseline-on-migrate: true
   security:
@@ -38,7 +41,14 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.Oracle12cDialect
         format_sql: false
-    show-sql: false
+        cache:
+          use_query_cache: true
+          use_second_level_cache: true
+          factory_class: org.redisson.hibernate.RedissonRegionFactory
+          redisson:
+            fallback: true
+            config: redisson-dev.yaml
+    show-sql: true
     hibernate:
       ddl-auto: validate
     open-in-view: false
@@ -74,3 +84,4 @@ management:
         http:
           server:
             requests: 1ms, 5ms
+

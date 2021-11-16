@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
+@org.hibernate.annotations.Cache(region = "courseCache", usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Course
 {
     @Id

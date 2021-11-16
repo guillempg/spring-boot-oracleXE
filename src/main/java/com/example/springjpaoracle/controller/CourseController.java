@@ -1,8 +1,10 @@
 package com.example.springjpaoracle.controller;
 
 import com.example.springjpaoracle.dto.*;
+import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.model.Teacher;
 import com.example.springjpaoracle.model.TeacherAssignation;
+import com.example.springjpaoracle.service.CourseService;
 import com.example.springjpaoracle.service.StudentService;
 import com.example.springjpaoracle.service.TeacherService;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -19,11 +22,28 @@ public class CourseController
 {
     private final StudentService studentService;
     private final TeacherService teacherService;
+    private final CourseService courseService;
 
-    public CourseController(final StudentService studentService, final TeacherService teacherService)
+    public CourseController(final StudentService studentService, final TeacherService teacherService, final CourseService courseService)
     {
         this.studentService = studentService;
         this.teacherService = teacherService;
+        this.courseService = courseService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<CourseResponse>> listCourses()
+    {
+        final List<CourseResponse> body = CourseResponse.from(courseService.listCourses());
+        return ResponseEntity.ok(body);
+    }
+
+    @PostMapping
+    public ResponseEntity<CourseResponse> createCourse(@RequestBody CourseHttpRequest request)
+    {
+        final Course course = courseService.create(request);
+        final URI uri = URI.create("/courses/" + course.getId());
+        return ResponseEntity.created(uri).body(new CourseResponse(course.getName()));
     }
 
     @PostMapping(value = "/score")

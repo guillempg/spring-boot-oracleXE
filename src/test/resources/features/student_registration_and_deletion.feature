@@ -9,6 +9,18 @@ Feature: Student registration and deletion
       | deadpool  |
       | spiderman |
 
+  Scenario: List of courses is cached
+    Given 'admin' user 'nickfury' creates courses:
+      | courseName   | courseDescription |
+      | Japanese 101 | Write kanji       |
+      | German 101   | Hallo!            |
+      | Catalan 101  | Pa amb tomaquet   |
+    When 'admin' user 'nickfury' requests list of courses
+    Then cached courses are:
+      | Japanese 101 |
+      | German 101   |
+      | Catalan 101  |
+
   Scenario: Create new student
     When admin user 'nickfury' successfully register student with details:
       | name      | courses                           |

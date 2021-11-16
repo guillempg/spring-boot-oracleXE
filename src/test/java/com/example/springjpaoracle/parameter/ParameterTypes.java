@@ -1,6 +1,7 @@
 package com.example.springjpaoracle.parameter;
 
 import com.example.springjpaoracle.client.KeycloakUserCache;
+import com.example.springjpaoracle.dto.CourseHttpRequest;
 import io.cucumber.java.DataTableType;
 import io.cucumber.java.ParameterType;
 
@@ -25,6 +26,15 @@ public class ParameterTypes
         return new StudentHttpRequest()
                 .setStudentKeycloakId(keycloakClient.getKeycloakIdByUsername(entry.get("name")).getId())
                 .setCourseNames(courses(entry.get("courses")));
+    }
+
+    @DataTableType
+    public CourseHttpRequest courseHttpRequest(Map<String, String> map)
+    {
+        return CourseHttpRequest.builder()
+                .name(map.get("courseName"))
+                .description(map.get("courseDescription"))
+                .build();
     }
 
     @ParameterType(name = "courses", value = ".*")
