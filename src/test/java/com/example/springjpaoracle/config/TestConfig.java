@@ -12,11 +12,6 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.RedisSerializer;
-import org.springframework.data.redis.serializer.SerializationException;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.security.oauth2.client.*;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -127,29 +122,5 @@ public class TestConfig
                                                final ApplicationClient applicationClient)
     {
         return new KeycloakUserCacheImpl(keycloakAdminRootUri, applicationClient);
-    }
-
-    @Bean
-    public RedisTemplate<String, Object> courseRedisTemplate(RedisConnectionFactory redisConnectionFactory)
-    {
-        final RedisTemplate<String, Object> stringCourseRedisTemplate = new RedisTemplate<>();
-        stringCourseRedisTemplate.setConnectionFactory(redisConnectionFactory);
-
-        stringCourseRedisTemplate.setKeySerializer(new StringRedisSerializer());
-        stringCourseRedisTemplate.setValueSerializer(new RedisSerializer<Object>()
-        {
-            @Override
-            public byte[] serialize(final Object o) throws SerializationException
-            {
-                return new byte[0];
-            }
-
-            @Override
-            public Object deserialize(final byte[] bytes) throws SerializationException
-            {
-                return "";
-            }
-        });
-        return stringCourseRedisTemplate;
     }
 }
