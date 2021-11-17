@@ -12,7 +12,7 @@ public class TeacherResponse
 
     public static TeacherResponse from(final Teacher teacher)
     {
-        final TeacherResponse teacherResponse = new TeacherResponse();
+        final var teacherResponse = new TeacherResponse();
         teacherResponse.setKeycloakId(teacher.getKeycloakId());
         return teacherResponse;
     }

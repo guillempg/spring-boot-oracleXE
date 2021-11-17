@@ -1,13 +1,11 @@
 package com.example.springjpaoracle.controller;
 
 import com.example.springjpaoracle.dto.*;
-import com.example.springjpaoracle.model.Teacher;
 import com.example.springjpaoracle.model.TeacherAssignation;
 import com.example.springjpaoracle.service.StudentService;
 import com.example.springjpaoracle.service.TeacherService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,10 +27,10 @@ public class CourseController
     @PostMapping(value = "/score")
     public ResponseEntity<StudentCourseScoreResponse> score(@RequestBody ScoreRequest score)
     {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        final var authentication = SecurityContextHolder.getContext().getAuthentication();
         score.setTeacherKeycloakId(authentication.getName());
         final var savedScore = studentService.score(score);
-        final StudentCourseScoreResponse resp = StudentCourseScoreResponse.from(savedScore);
+        final var resp = StudentCourseScoreResponse.from(savedScore);
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
 
@@ -46,7 +44,7 @@ public class CourseController
     @PostMapping(value = "/saveteacher")
     public ResponseEntity<TeacherResponse> saveTeacher(@RequestBody SaveTeacherRequest saveTeacherRequest)
     {
-        final Teacher teacher = teacherService.findOrSaveTeacher(saveTeacherRequest);
+        final var teacher = teacherService.findOrSaveTeacher(saveTeacherRequest);
         return new ResponseEntity<>(TeacherResponse.from(teacher), HttpStatus.OK);
     }
 

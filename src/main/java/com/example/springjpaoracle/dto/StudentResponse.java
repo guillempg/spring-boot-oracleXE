@@ -1,10 +1,10 @@
 package com.example.springjpaoracle.dto;
 
 import com.example.springjpaoracle.model.Student;
+import com.example.springjpaoracle.model.StudentRegistration;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.List;
@@ -21,11 +21,11 @@ public class StudentResponse
 
     public static StudentResponse from(Student student)
     {
-        final StudentResponse studentResponse = new StudentResponse();
+        final var studentResponse = new StudentResponse();
         studentResponse.setKeycloakId(student.getKeycloakId());
 
         studentResponse.setCourses(student.getRegistrations().stream()
-                .map(r -> r.getCourse())
+                .map(StudentRegistration::getCourse)
                 .map(c -> new CourseResponse().setName(c.getName()))
                 .collect(Collectors.toList()));
 

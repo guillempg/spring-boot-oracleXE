@@ -23,8 +23,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter()
     {
-        final JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-        final CustomJwtConverter converter = new CustomJwtConverter();
+        final var jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        final var converter = new CustomJwtConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(converter);
         return jwtAuthenticationConverter;
     }
