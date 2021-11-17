@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import java.util.List;
 
 @Entity
@@ -16,14 +19,8 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class Course
+public class Course extends BaseEntity
 {
-    @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
-    private int id;
-
     @Column
     private String name;
 

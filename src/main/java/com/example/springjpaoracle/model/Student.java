@@ -1,36 +1,24 @@
 package com.example.springjpaoracle.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import java.util.List;
 
 @Entity
-@Table(name = "STUDENT")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @Getter
 @Setter
 @RequiredArgsConstructor
+@ToString(callSuper = true)
 @Accessors(chain = true)
-public class Student
+@DiscriminatorValue("Student")
+public class Student extends Person
 {
-    @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
-    private int id;
-
-    @Column(unique = true, nullable = false)
-    @EqualsAndHashCode.Include
-    private String keycloakId;
-
-    @OneToMany(mappedBy = "relatedStudent")
-    private List<Phone> phoneNumbers;
-
     @OneToMany(mappedBy = "student", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private List<StudentRegistration> registrations;
 }

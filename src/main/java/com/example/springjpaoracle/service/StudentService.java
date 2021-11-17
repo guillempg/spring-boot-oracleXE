@@ -13,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class StudentService
@@ -43,12 +42,12 @@ public class StudentService
     public Student registerStudent(RegistrationRequest registrationRequest)
     {
         registry.counter(REGISTER_STUDENT_REQUEST_COUNT).increment();
-        var student = new Student().setKeycloakId(registrationRequest.getStudentKeycloakId());
+        var student = (Student) new Student().setKeycloakId(registrationRequest.getStudentKeycloakId());
         List<StudentRegistration> registrations = ServiceUtil.findOrCreateCourses(
                         courseRepository,
                         registrationRequest.getCourseNames()).stream()
                 .map(course -> new StudentRegistration().setCourse(course).setStudent(student))
-                .collect(Collectors.toList());
+                .toList();
         student.setRegistrations(registrations);
 
         //List<Phone> phones = findOrCreatePhones(registrationRequest.getPhoneNumbers());

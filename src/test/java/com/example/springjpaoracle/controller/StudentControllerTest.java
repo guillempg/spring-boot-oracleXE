@@ -53,7 +53,7 @@ class StudentControllerTest
         Jwt jwt = getTokenWithRoles(EXISTING_KEYCLOAK_ID, "user");
 
         when(studentService.findByKeycloakId(EXISTING_KEYCLOAK_ID))
-                .thenReturn(Optional.of(new Student().setKeycloakId(EXISTING_KEYCLOAK_ID)));
+                .thenReturn(Optional.of((Student) new Student().setKeycloakId(EXISTING_KEYCLOAK_ID)));
 
         mockedMvc.perform(get("/students/{keycloakId}", EXISTING_KEYCLOAK_ID)
                         .header("Authorization", getAuthorizationHeader(jwt)))
@@ -81,7 +81,7 @@ class StudentControllerTest
         Jwt jwt = getTokenWithRoles("other_student", "user");
 
         when(studentService.findByKeycloakId(EXISTING_KEYCLOAK_ID))
-                .thenReturn(Optional.of(new Student().setKeycloakId(EXISTING_KEYCLOAK_ID)));
+                .thenReturn(Optional.of((Student) new Student().setKeycloakId(EXISTING_KEYCLOAK_ID)));
 
         mockedMvc.perform(get("/students/{keycloakId}", EXISTING_KEYCLOAK_ID)
                         .header("Authorization", getAuthorizationHeader(jwt)))
@@ -96,7 +96,7 @@ class StudentControllerTest
         Jwt jwt = getTokenWithRoles("AdminId", "admin");
 
         when(studentService.findByKeycloakId(EXISTING_KEYCLOAK_ID))
-                .thenReturn(Optional.of(new Student().setKeycloakId(EXISTING_KEYCLOAK_ID)));
+                .thenReturn(Optional.of((Student) new Student().setKeycloakId(EXISTING_KEYCLOAK_ID)));
 
         mockedMvc.perform(get("/students/{keycloakId}", EXISTING_KEYCLOAK_ID)
                         .header("Authorization", getAuthorizationHeader(jwt)))
