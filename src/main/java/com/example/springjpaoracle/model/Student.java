@@ -1,9 +1,6 @@
 package com.example.springjpaoracle.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.Accessors;
 
 import javax.persistence.CascadeType;
@@ -13,10 +10,11 @@ import javax.persistence.OneToMany;
 import java.util.List;
 
 @Entity
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @Getter
 @Setter
 @RequiredArgsConstructor
+@ToString(callSuper = true)
 @Accessors(chain = true)
 @DiscriminatorValue("Student")
 public class Student extends Person

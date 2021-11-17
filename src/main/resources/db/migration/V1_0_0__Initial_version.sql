@@ -73,12 +73,14 @@ alter table phone
 alter table student_course_register
     add constraint FKl9cd7uopcl3x43xxlpl7jetlh
         foreign key (course_id)
-            references course;
+            references course
+            on delete cascade;
 
 alter table student_course_register
     add constraint FK8qnsabguaws2ptomuqpg2965e
         foreign key (student_id)
-            references student;
+            references student
+            on delete cascade;
 
 alter table student_course_score
     add constraint FKh0vwbcyanryqjugdivow1tosm
@@ -93,9 +95,11 @@ alter table student_course_score
 alter table teacher_course_assignations
     add constraint FKs8lmyr5vyc3wef63qqe3s61gn
         foreign key (course_id)
-            references course;
+            references course
+            on delete cascade;
 
 alter table teacher_course_assignations
     add constraint FK5ahjvwoktw20qkjlj5rk79wb
         foreign key (teacher_id)
-            references teacher;
+            references teacher
+            on delete cascade;

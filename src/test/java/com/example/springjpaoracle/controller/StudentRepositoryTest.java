@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
@@ -75,8 +73,7 @@ class StudentRepositoryTest
         studentRepository.save(studentRegisteredToBlue);
 
         final List<Student> unregisteredToPaintBlue = studentRepository.findStudentsNotRegisteredToCourse("Paint Blue");
-        assertTrue(unregisteredToPaintBlue.contains(studentRegisteredToPink));
-        assertFalse(unregisteredToPaintBlue.contains(studentRegisteredToBlue));
+        assertThat(unregisteredToPaintBlue).containsExactly(studentRegisteredToPink);
     }
 
     @Test
