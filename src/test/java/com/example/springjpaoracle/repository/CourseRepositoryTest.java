@@ -38,7 +38,8 @@ class CourseRepositoryTest extends RepositoryBaseTest
     {
         Statistics statistics = sessionFactory.getStatistics();
         statistics.setStatisticsEnabled(true);
-        List<Course> courses = repository.findByNameIgnoreCaseIn(List.of("Redis 101", "Redis 201", "Redis 301"));
+        List<Course> courses = repository.findAll();
+        courses.stream().map(Course::getId).forEach(repository::findById);
         courses.forEach(c -> assertTrue(sessionFactory.getCache().contains(Course.class, c.getId())));
         assertThat(statistics.getSecondLevelCacheHitCount()).isEqualTo(3L);
         statistics.clear();
