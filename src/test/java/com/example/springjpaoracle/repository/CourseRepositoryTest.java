@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -94,7 +95,7 @@ class CourseRepositoryTest extends RepositoryBaseTest
     {
         Course course = repository.findAll().stream().findFirst().orElseThrow();
         Optional<Course> byId = repository.findById(course.getId());
-        redisTemplate.opsForHash().entries("courseCache");
-        assertThat(course).isNotNull();
+        Map<Object, Object> courseCache = redisTemplate.opsForHash().entries("courseCache");
+        assertThat(courseCache).isNotNull();
     }
 }
