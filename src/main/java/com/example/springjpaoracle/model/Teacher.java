@@ -22,9 +22,6 @@ public class Teacher extends BaseEntity
     @EqualsAndHashCode.Include
     private String keycloakId;
 
-    @OneToMany(mappedBy = "relatedStudent")
-    private List<Phone> phoneNumbers;
-
     @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(
             name = "TEACHER_COURSE_ASSIGNATIONS",

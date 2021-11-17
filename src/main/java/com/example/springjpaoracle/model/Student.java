@@ -22,9 +22,6 @@ public class Student extends BaseEntity
     @EqualsAndHashCode.Include
     private String keycloakId;
 
-    @OneToMany(mappedBy = "relatedStudent")
-    private List<Phone> phoneNumbers;
-
     @OneToMany(mappedBy = "student", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private List<StudentRegistration> registrations;
 }
