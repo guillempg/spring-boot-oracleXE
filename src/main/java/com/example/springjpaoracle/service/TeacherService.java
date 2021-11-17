@@ -44,7 +44,7 @@ public class TeacherService
     public Teacher findOrSaveTeacher(final SaveTeacherRequest saveTeacherRequest)
     {
         Teacher teacher = teacherRepository.findByKeycloakId(saveTeacherRequest.getKeycloakId()).orElse(
-                new Teacher().setKeycloakId(saveTeacherRequest.getKeycloakId()));
+                (Teacher) new Teacher().setKeycloakId(saveTeacherRequest.getKeycloakId()));
 
         return teacherRepository.save(teacher);
     }

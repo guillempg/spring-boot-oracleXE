@@ -10,18 +10,14 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "TEACHER")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class Teacher extends BaseEntity
+@DiscriminatorValue("Teacher")
+public class Teacher extends Person
 {
-    @Column(unique = true, nullable = false)
-    @EqualsAndHashCode.Include
-    private String keycloakId;
-
     @ManyToMany(cascade = CascadeType.REMOVE)
     @JoinTable(
             name = "TEACHER_COURSE_ASSIGNATIONS",

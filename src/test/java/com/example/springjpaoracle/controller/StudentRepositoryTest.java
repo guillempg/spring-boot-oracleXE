@@ -62,8 +62,8 @@ class StudentRepositoryTest
         courseRepository.save(paintPink);
         courseRepository.save(paintBlue);
 
-        final Student studentRegisteredToPink = new Student().setKeycloakId("111-111-111");
-        final Student studentRegisteredToBlue = new Student().setKeycloakId("222-222-222");
+        final Student studentRegisteredToPink = (Student) new Student().setKeycloakId("111-111-111");
+        final Student studentRegisteredToBlue = (Student) new Student().setKeycloakId("222-222-222");
 
         final StudentRegistration pinkPantherEnrolled = new StudentRegistration().setStudent(studentRegisteredToPink).setCourse(paintPink);
         final StudentRegistration mrEggEnrolled = new StudentRegistration().setStudent(studentRegisteredToBlue).setCourse(paintBlue);

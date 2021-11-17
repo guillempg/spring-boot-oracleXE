@@ -42,7 +42,7 @@ public class StudentService
     public Student registerStudent(RegistrationRequest registrationRequest)
     {
         registry.counter(REGISTER_STUDENT_REQUEST_COUNT).increment();
-        var student = new Student().setKeycloakId(registrationRequest.getStudentKeycloakId());
+        var student = (Student) new Student().setKeycloakId(registrationRequest.getStudentKeycloakId());
         List<StudentRegistration> registrations = ServiceUtil.findOrCreateCourses(
                         courseRepository,
                         registrationRequest.getCourseNames()).stream()

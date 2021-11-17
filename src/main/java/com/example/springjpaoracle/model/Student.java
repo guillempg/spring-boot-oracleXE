@@ -6,22 +6,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import java.util.List;
 
 @Entity
-@Table(name = "STUDENT")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Getter
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class Student extends BaseEntity
+@DiscriminatorValue("Student")
+public class Student extends Person
 {
-    @Column(unique = true, nullable = false)
-    @EqualsAndHashCode.Include
-    private String keycloakId;
-
     @OneToMany(mappedBy = "student", cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private List<StudentRegistration> registrations;
 }
