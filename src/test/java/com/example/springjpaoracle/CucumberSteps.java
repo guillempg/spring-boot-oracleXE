@@ -163,7 +163,7 @@ public class CucumberSteps
 
         List<String> studentNames = Objects.requireNonNull(students).stream()
                 .map(LightweightStudentResponse::getKeycloakId)
-                .collect(Collectors.toList());
+                .toList();
         assertThat(studentNames)
                 .containsExactlyInAnyOrder(expectedStudentNames.stream().map(KeycloakUser::getId).toArray(String[]::new));
     }
@@ -183,7 +183,7 @@ public class CucumberSteps
     {
         List<String> expectedKeycloakIds = expectedNames.stream()
                 .map(KeycloakUser::getId)
-                .collect(Collectors.toList());
+                .toList();
 
         await().until(() -> expectedKeycloakIds.stream()
                 .map(keycloakId -> applicationClient.getWebTestClient()
@@ -217,7 +217,7 @@ public class CucumberSteps
 
         List<String> studentNames = studentsResponse.stream()
                 .map(LightweightStudentResponse::getKeycloakId)
-                .collect(Collectors.toList());
+                .toList();
         assertThat(studentNames)
                 .containsExactlyInAnyOrder(expectedStudentNames.stream().map(KeycloakUser::getId).toArray(String[]::new));
     }

@@ -4,7 +4,6 @@ import com.example.springjpaoracle.model.Course;
 import com.example.springjpaoracle.repository.CourseRepository;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public final class ServiceUtil
 {
@@ -17,6 +16,6 @@ public final class ServiceUtil
         return courseNames.stream()
                 .map(courseName -> courseRepository.findByNameIgnoreCase(courseName)
                         .orElseGet(() -> courseRepository.save(new Course().setName(courseName))))
-                .collect(Collectors.toList());
+                .toList();
     }
 }

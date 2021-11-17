@@ -18,14 +18,8 @@ import javax.persistence.*;
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class TeacherAssignation
+public class TeacherAssignation extends BaseEntity
 {
-    @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
-    private int id;
-
     @ManyToOne
     @JoinColumn(name = "TEACHER_ID")
     private Teacher teacher;

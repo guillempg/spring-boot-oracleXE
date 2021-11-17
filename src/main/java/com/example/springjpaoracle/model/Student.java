@@ -16,14 +16,8 @@ import java.util.List;
 @Setter
 @RequiredArgsConstructor
 @Accessors(chain = true)
-public class Student
+public class Student extends BaseEntity
 {
-    @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @EqualsAndHashCode.Include
-    private int id;
-
     @Column(unique = true, nullable = false)
     @EqualsAndHashCode.Include
     private String keycloakId;
