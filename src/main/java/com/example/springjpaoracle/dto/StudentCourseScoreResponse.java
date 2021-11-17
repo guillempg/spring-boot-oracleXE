@@ -4,7 +4,6 @@ import com.example.springjpaoracle.model.StudentCourseScore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 import lombok.experimental.Accessors;
 
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class StudentCourseScoreResponse
 
     public static StudentCourseScoreResponse from(final StudentCourseScore savedScore)
     {
-        final StudentCourseScoreResponse resp = new StudentCourseScoreResponse();
+        final var resp = new StudentCourseScoreResponse();
         resp.setStudentKeycloakId(savedScore.getRegistration().getStudent().getKeycloakId());
         resp.setTeacherKeycloakId(savedScore.getTeacher().getKeycloakId());
         resp.setCourseName(savedScore.getRegistration().getCourse().getName());

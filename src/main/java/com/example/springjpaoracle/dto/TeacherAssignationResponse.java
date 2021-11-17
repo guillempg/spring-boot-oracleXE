@@ -13,7 +13,7 @@ public class TeacherAssignationResponse
 
     public static TeacherAssignationResponse from(final TeacherAssignation assignation)
     {
-        TeacherAssignationResponse resp = new TeacherAssignationResponse();
+        var resp = new TeacherAssignationResponse();
         resp.setTeacherKeycloakId(assignation.getTeacher().getKeycloakId());
         resp.setCourseName(assignation.getCourse().getName());
         return resp;

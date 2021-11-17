@@ -29,7 +29,7 @@ public class StudentController
     public ResponseEntity<StudentResponse> registerStudent(@RequestBody RegistrationRequest registrationRequest)
     {
         final var savedStudent = studentService.registerStudent(registrationRequest);
-        final StudentResponse resp = StudentResponse.from(savedStudent);
+        final var resp = StudentResponse.from(savedStudent);
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
 

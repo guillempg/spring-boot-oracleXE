@@ -3,7 +3,9 @@ package com.example.springjpaoracle.service;
 import com.example.springjpaoracle.dto.RegistrationRequest;
 import com.example.springjpaoracle.dto.ScoreRequest;
 import com.example.springjpaoracle.exception.*;
-import com.example.springjpaoracle.model.*;
+import com.example.springjpaoracle.model.Student;
+import com.example.springjpaoracle.model.StudentCourseScore;
+import com.example.springjpaoracle.model.StudentRegistration;
 import com.example.springjpaoracle.repository.*;
 import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -41,11 +43,11 @@ public class StudentService
     public Student registerStudent(RegistrationRequest registrationRequest)
     {
         registry.counter(REGISTER_STUDENT_REQUEST_COUNT).increment();
-        Student student = new Student().setKeycloakId(registrationRequest.getStudentKeycloakId());
+        var student = new Student().setKeycloakId(registrationRequest.getStudentKeycloakId());
         List<StudentRegistration> registrations = ServiceUtil.findOrCreateCourses(
                         courseRepository,
                         registrationRequest.getCourseNames()).stream()
-                .map((course) -> new StudentRegistration().setCourse(course).setStudent(student))
+                .map(course -> new StudentRegistration().setCourse(course).setStudent(student))
                 .collect(Collectors.toList());
         student.setRegistrations(registrations);
 
@@ -76,12 +78,12 @@ public class StudentService
 
     public StudentCourseScore score(final ScoreRequest scoreRequest)
     {
-        final StudentCourseScore score = new StudentCourseScore();
-        final Student student = studentRepository.findByKeycloakId(scoreRequest.getStudentKeycloakId())
+        final var score = new StudentCourseScore();
+        final var student = studentRepository.findByKeycloakId(scoreRequest.getStudentKeycloakId())
                 .orElseThrow(() -> new StudentNotFoundException("Student with keycloakId:" + scoreRequest.getStudentKeycloakId() + NOT_FOUND));
-        final Teacher teacher = teacherRepository.findByKeycloakId(scoreRequest.getTeacherKeycloakId())
+        final var teacher = teacherRepository.findByKeycloakId(scoreRequest.getTeacherKeycloakId())
                 .orElseThrow(() -> new TeacherNotFoundException("Teacher with keycloakId:" + scoreRequest.getTeacherKeycloakId() + NOT_FOUND));
-        final Course course = courseRepository.findByNameIgnoreCase(scoreRequest.getCourseName())
+        final var course = courseRepository.findByNameIgnoreCase(scoreRequest.getCourseName())
                 .orElseThrow(() -> new CourseNotFoundException("Course with name " + scoreRequest.getCourseName() + NOT_FOUND));
         final StudentRegistration registration = studentRegistrationRepository.findByStudentIdAndCourseId(student.getId(), course.getId())
                 .orElseThrow(() -> new StudentRegistrationNotFoundException(student.getId(), course.getId()));

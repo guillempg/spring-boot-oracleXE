@@ -18,7 +18,7 @@ public class ResourceOwnerOrGrantedAuthority
 
     public boolean validate(String resourcePath, String... requiredAuthorities)
     {
-        Authentication authentication = authenticationSupplier.get();
+        var authentication = authenticationSupplier.get();
         Stream<String> requesterAuthorities = authentication.getAuthorities().stream().map(GrantedAuthority::getAuthority);
         boolean isOwner = resourcePath.equals(authentication.getName());
         boolean hasPermission = requesterAuthorities.anyMatch(Arrays.asList(requiredAuthorities)::contains);

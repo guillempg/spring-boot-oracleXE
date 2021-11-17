@@ -12,7 +12,7 @@ public class LightweightStudentResponse
 
     public static LightweightStudentResponse from(Student student)
     {
-        final LightweightStudentResponse studentResponse = new LightweightStudentResponse();
+        final var studentResponse = new LightweightStudentResponse();
         studentResponse.setKeycloakId(student.getKeycloakId());
         return studentResponse;
     }
