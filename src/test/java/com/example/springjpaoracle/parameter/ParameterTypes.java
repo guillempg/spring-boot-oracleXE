@@ -7,6 +7,7 @@ import io.cucumber.java.ParameterType;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ParameterTypes
 {
@@ -30,7 +31,8 @@ public class ParameterTypes
     public List<String> courses(String rawCourses)
     {
         return Arrays.stream(rawCourses.split(","))
-                .map(String::trim).toList();
+                .map(String::trim)
+                .collect(Collectors.toList());
     }
 
     @DataTableType
