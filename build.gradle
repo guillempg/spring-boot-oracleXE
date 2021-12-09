@@ -9,7 +9,7 @@ plugins {
 
 group = 'com.example'
 version = '0.0.2-SNAPSHOT'
-sourceCompatibility = '17'
+sourceCompatibility = '11'
 
 repositories {
     mavenCentral()
@@ -100,7 +100,8 @@ test {
 
 jib {
     from {
-        image = "openjdk:17-jdk-alpine"
+        //image = "openjdk:17-jdk-alpine"
+        image = "adoptopenjdk:11-jre-hotspot"
     }
     to {
         image = 'localhost:32000/springjpaoracle'

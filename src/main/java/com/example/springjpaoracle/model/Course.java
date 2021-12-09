@@ -14,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "COURSE")
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @Getter
 @Setter
 @RequiredArgsConstructor

@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/students")
@@ -38,7 +39,7 @@ public class StudentController
         List<Student> students = studentService.findStudentsByCoursesNameIgnoreCase(courseName);
         final List<LightweightStudentResponse> lightweightStudentResponse = students.stream()
                 .map(LightweightStudentResponse::from)
-                .toList();
+                .collect(Collectors.toList());
         return new ResponseEntity<>(lightweightStudentResponse, HttpStatus.OK);
     }
 
@@ -65,7 +66,7 @@ public class StudentController
         List<Student> studentsNotRegisteredToCourse = studentService.findStudentsNotRegisteredToCourse(courseName);
         final List<LightweightStudentResponse> lightweightStudentResponse = studentsNotRegisteredToCourse.stream()
                 .map(LightweightStudentResponse::from)
-                .toList();
+                .collect(Collectors.toList());
         return new ResponseEntity<>(lightweightStudentResponse, HttpStatus.OK);
     }
 }

@@ -13,7 +13,7 @@ import javax.persistence.*;
         name = "STUDENT_COURSE_REGISTER",
         uniqueConstraints = {@UniqueConstraint(columnNames = {"STUDENT_ID", "COURSE_ID"})}
 )
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @Getter
 @Setter
 @RequiredArgsConstructor

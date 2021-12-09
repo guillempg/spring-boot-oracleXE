@@ -10,7 +10,7 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "STUDENT_COURSE_SCORE")
-@EqualsAndHashCode
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
 @Getter
 @Setter
 @RequiredArgsConstructor
