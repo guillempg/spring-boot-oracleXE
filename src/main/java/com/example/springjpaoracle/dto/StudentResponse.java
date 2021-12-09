@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -26,7 +27,7 @@ public class StudentResponse
         studentResponse.setCourses(student.getRegistrations().stream()
                 .map(StudentRegistration::getCourse)
                 .map(c -> new CourseResponse().setName(c.getName()))
-                .toList());
+                .collect(Collectors.toList()));
 
         return studentResponse;
     }
