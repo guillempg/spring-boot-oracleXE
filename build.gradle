@@ -30,7 +30,7 @@ task cucumber() {
             jvmArgs = ['-Dspring.profiles.active=cucumber']
             classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
             args = ['--plugin', 'pretty',
-                    '--plugin', 'json:build/reports/CucumberReports/report.json',
+                    '--plugin', 'json:build/reports/CucumberReports/cucumber.json',
                     '--glue', 'com.example.springjpaoracle',
                     '--tags', System.getProperty('cucumber.tags', 'not @WorkInProgress'),
                     'src/test/resources/features']
